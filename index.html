@@ -338,6 +338,26 @@ body{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif;b
         <option value="19">술시 19:00~21:00</option><option value="21">해시 21:00~23:00</option>
       </select>
     </div>
+    <div class="fgroup"><label>태어난 장소 (서양 점성술 12하우스 정확도용)</label>
+      <select class="fselect" id="f-city">
+        <option value="37.5665,126.9780,서울">서울 (기본값)</option>
+        <option value="35.1796,129.0756,부산">부산</option>
+        <option value="35.8714,128.6014,대구">대구</option>
+        <option value="37.4563,126.7052,인천">인천</option>
+        <option value="35.1595,126.8526,광주">광주</option>
+        <option value="36.3504,127.3845,대전">대전</option>
+        <option value="35.5384,129.3114,울산">울산</option>
+        <option value="36.4801,127.2890,세종">세종</option>
+        <option value="37.2636,127.0286,수원">수원·경기 남부</option>
+        <option value="37.7519,128.8761,강릉">강릉·강원 동부</option>
+        <option value="37.8813,127.7298,춘천">춘천·강원 서부</option>
+        <option value="36.6424,127.4890,청주">청주·충북</option>
+        <option value="35.8242,127.1480,전주">전주·전북</option>
+        <option value="36.0190,129.3435,포항">포항·경북 동부</option>
+        <option value="35.2271,128.6814,창원">창원·경남</option>
+        <option value="33.4996,126.5312,제주">제주</option>
+      </select>
+    </div>
     <div class="fgroup"><label>성별</label>
       <div class="gender-row">
         <div class="gbtn" id="gbtn-M">♂ 남성</div>
@@ -958,6 +978,117 @@ var ZODIAC=[
 
 function getSunSign(m,d){for(var i=0;i<ZODIAC.length;i++){var z=ZODIAC[i],s=z.sd,e=z.ed;if((m===s[0]&&d>=s[1])||(m===e[0]&&d<=e[1]))return z;}return ZODIAC[0];}
 
+// ════════════════════════════════════════════════════════
+// 천문학 계산 (어센던트·12하우스·태양·달)
+// 황도 0° = 양자리 시작. ZODIAC 배열 인덱스 매핑: 황도(0~11) → ZODIAC(3,4,5,6,7,8,9,10,11,0,1,2)
+// ════════════════════════════════════════════════════════
+var Z_MAP_FROM_LON=[3,4,5,6,7,8,9,10,11,0,1,2]; // 양·황소·쌍둥이·게·사자·처녀·천칭·전갈·사수·염소·물병·물고기
+function normDeg(x){x=x%360;if(x<0)x+=360;return x;}
+
+function calcJD(y,m,d,localHour){
+  // KST(UT+9) 보정. 시간 모를 때는 정오 가정.
+  var h=(localHour<0)?12:localHour;
+  var ut=h-9;
+  if(ut<0){ut+=24;d-=1;}
+  if(m<=2){y-=1;m+=12;}
+  var A=Math.floor(y/100);
+  var B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5+ut/24;
+}
+
+function sunLongitude(jd){
+  var T=(jd-2451545.0)/36525.0;
+  var L=normDeg(280.460+36000.770*T);
+  var M=(357.528+35999.050*T)*Math.PI/180;
+  var C=1.915*Math.sin(M)+0.020*Math.sin(2*M);
+  return normDeg(L+C);
+}
+
+function moonLongitude(jd){
+  var T=(jd-2451545.0)/36525.0;
+  var L=218.316+481267.8813*T;
+  var Mr=(134.963+477198.8676*T)*Math.PI/180;
+  var Dr=(297.850+445267.111*T)*Math.PI/180;
+  var Mp=(357.528+35999.050*T)*Math.PI/180;
+  // 주요 보정항 (간략화, ±2도 이내)
+  var lam=L+6.289*Math.sin(Mr)
+           -1.274*Math.sin(Mr-2*Dr)
+           +0.658*Math.sin(2*Dr)
+           -0.214*Math.sin(2*Mr)
+           -0.186*Math.sin(Mp);
+  return normDeg(lam);
+}
+
+function calcAscendant(jd,lat,lon){
+  // GMST (시간 단위)
+  var GMST=18.697374558+24.06570982441908*(jd-2451545.0);
+  GMST=((GMST%24)+24)%24;
+  var LST=GMST+lon/15;
+  LST=((LST%24)+24)%24;
+  var RAMC=LST*15; // 도 단위
+  var eps=23.4393*Math.PI/180;
+  var ramc=RAMC*Math.PI/180;
+  var latR=lat*Math.PI/180;
+  // MC 황도 경도
+  var mc=normDeg(Math.atan2(Math.sin(ramc),Math.cos(ramc)*Math.cos(eps))*180/Math.PI);
+  // 어센던트 표준 공식
+  var asc=normDeg(Math.atan2(
+    Math.cos(ramc),
+    -Math.sin(ramc)*Math.cos(eps)-Math.tan(latR)*Math.sin(eps)
+  )*180/Math.PI);
+  // 어센던트는 MC보다 황도순으로 0~180° 동쪽에 있어야 함. 아니면 180° 플립
+  var diff=normDeg(asc-mc);
+  if(diff<0||diff>180)asc=normDeg(asc+180);
+  return asc;
+}
+
+function lonToZodiac(lon){
+  var idx=Math.floor(lon/30); // 0=양자리, 1=황소...
+  var deg=lon%30;
+  return{lonIdx:idx,sign:ZODIAC[Z_MAP_FROM_LON[idx]],deg:deg,zodiacArrIdx:Z_MAP_FROM_LON[idx]};
+}
+
+// Whole Sign 12하우스: 어센던트가 든 별자리 = 1하우스, 다음 별자리 = 2하우스 ...
+function buildWholeSignHouses(ascLon){
+  var ascIdx=Math.floor(ascLon/30); // 양자리 기준 인덱스
+  var houses=[];
+  for(var i=0;i<12;i++){
+    var lonIdx=(ascIdx+i)%12;
+    houses.push({
+      houseNum:i+1,
+      lonStart:lonIdx*30,
+      lonEnd:(lonIdx+1)*30,
+      zodiacArrIdx:Z_MAP_FROM_LON[lonIdx],
+      sign:ZODIAC[Z_MAP_FROM_LON[lonIdx]],
+      meta:HOUSES[i]
+    });
+  }
+  return houses;
+}
+
+// 행성이 몇 번째 하우스에 있는지 (Whole Sign 기준)
+function planetHouse(planetLon,ascLon){
+  var planetIdx=Math.floor(planetLon/30);
+  var ascIdx=Math.floor(ascLon/30);
+  return((planetIdx-ascIdx+12)%12)+1;
+}
+
+function buildBirthChart(year,month,day,hour,lat,lon){
+  var jd=calcJD(year,month,day,hour);
+  var sunLon=sunLongitude(jd);
+  var moonLon=moonLongitude(jd);
+  var hasTime=hour>=0;
+  var ascLon=hasTime?calcAscendant(jd,lat,lon):null;
+  var houses=hasTime?buildWholeSignHouses(ascLon):null;
+  return{
+    jd:jd,hasTime:hasTime,
+    sun:{lon:sunLon,zodiac:lonToZodiac(sunLon),house:hasTime?planetHouse(sunLon,ascLon):null},
+    moon:{lon:moonLon,zodiac:lonToZodiac(moonLon),house:hasTime?planetHouse(moonLon,ascLon):null},
+    asc:hasTime?{lon:ascLon,zodiac:lonToZodiac(ascLon)}:null,
+    houses:houses
+  };
+}
+
 // 12하우스 데이터
 var HOUSES=[
   {n:'1하우스',a:'자아·외모·첫인상',d:'박쌤이 세상에 보여지는 모습. 외모, 첫인상, 인생 출발점의 색깔. 박쌤의 가장 본능적인 자아가 머무는 자리입니다.'},
@@ -1127,12 +1258,14 @@ function showResult(input){
   var monthly=buildMonthlyFortune(dp.stem,curYear);
   var numero=calcNumerology(input.name,y,m,d);
   var sun=getSunSign(m,d);
+  // 서양 점성술 실제 차트
+  var chart=buildBirthChart(y,m,d,input.hour,input.lat,input.lon);
   $data={
     input:input,solar:{y:y,m:m,d:d},
     pillars:pillars,yp:yp,mp:mp,dp:dp,hp:hp,
     elem:elem,strength:strength,ssal:ssal,daeun:daeun,
     curYear:curYear,curAge:curAge,yearF:yearF,
-    monthly:monthly,numero:numero,sun:sun,
+    monthly:monthly,numero:numero,sun:sun,chart:chart,
     name:input.name||'박쌤'
   };
   buildCover();
@@ -1415,31 +1548,106 @@ function buildNumeroPane(){
   return html;
 }
 
-// ───── 점성술 ─────
+// ───── 점성술 (실제 차트 기반) ─────
 function buildAstroPane(){
-  var d=$data,nm=d.name,s=d.sun;
+  var d=$data,nm=d.name,s=d.sun,chart=d.chart;
   var html='';
-  html+=sec('A0','태양궁 '+s.n+' '+s.em,'박쌤의 태양 별자리 ('+s.sd[0]+'/'+s.sd[1]+'~'+s.ed[0]+'/'+s.ed[1]+')',
+  // 1) 출생 차트 카드
+  var birthInfoHTML='<table class="info-table">'+
+    '<tr><th>출생 일자</th><td>'+d.solar.y+'년 '+d.solar.m+'월 '+d.solar.d+'일</td></tr>'+
+    '<tr><th>출생 시간</th><td>'+(d.input.hour>=0?d.input.hour+':00 부근 (KST)':'<span style="color:#a02018">시간 모름 → 어센던트 계산 불가</span>')+'</td></tr>'+
+    '<tr><th>출생 장소</th><td>'+d.input.cityName+' ('+d.input.lat.toFixed(2)+'°N, '+d.input.lon.toFixed(2)+'°E)</td></tr>'+
+    '</table>';
+  html+=sec('A0','박쌤의 출생 차트 정보','이 데이터로 천체력을 풀어드립니다',birthInfoHTML);
+
+  // 2) 태양궁 (날짜만 있으면 정확)
+  html+=sec('A1','☀️ 태양궁 (Sun Sign) '+s.em+' '+s.n,'본질·자아의 핵심',
     '<table class="info-table">'+
     '<tr><th>지배 행성</th><td>'+s.rule+'</td></tr>'+
     '<tr><th>키워드</th><td>'+s.kw+'</td></tr>'+
-    '<tr><th>영문</th><td>'+s.e+'</td></tr>'+
+    '<tr><th>태양 황경</th><td>'+chart.sun.lon.toFixed(2)+'° ('+chart.sun.zodiac.sign.n+' '+chart.sun.zodiac.deg.toFixed(1)+'°)</td></tr>'+
+    (chart.hasTime?'<tr><th>태양이 든 하우스</th><td><strong style="color:#7d5a1e">'+chart.sun.house+'하우스 - '+HOUSES[chart.sun.house-1].a+'</strong></td></tr>':'')+
     '</table>'+
-    '<div class="dark-card"><h3>⭐ '+nm+'님의 태양 별자리</h3><p>'+applyName(s.desc,nm)+'</p></div>');
-  // 12하우스
-  var housesHTML='<div class="houses-grid">';
-  HOUSES.forEach(function(h,i){
-    housesHTML+='<div class="house-card"><div class="house-head"><div class="house-num">'+(i+1)+'</div><div><div class="house-name">'+h.n+'</div><div class="house-area">'+h.a+'</div></div></div><div class="house-desc">'+applyName(h.d,nm)+'</div></div>';
-  });
-  housesHTML+='</div>';
-  html+=sec('A1','12하우스 풀이','박쌤의 천궁도가 비추는 12가지 인생 영역',housesHTML);
-  // 궁합
+    '<div class="dark-card"><h3>⭐ '+nm+'님의 태양 별자리</h3><p>'+applyName(s.desc,nm)+'</p>'+
+    (chart.hasTime?'<p style="margin-top:10px"><strong>박쌤의 태양은 '+chart.sun.house+'하우스에 있습니다.</strong> '+applyName('박쌤의 자아와 본질은 「'+HOUSES[chart.sun.house-1].a+'」 영역에서 가장 강하게 빛납니다. '+ HOUSES[chart.sun.house-1].d.replace(/^박쌤의 /,'').replace(/^박쌤이 /,''),nm)+'</p>':'')+
+    '</div>');
+
+  // 3) 달 별자리 (Moon Sign)
+  var moonZ=chart.moon.zodiac.sign;
+  html+=sec('A2','🌙 달 별자리 (Moon Sign) '+moonZ.em+' '+moonZ.n,'감정·내면·무의식의 결',
+    '<table class="info-table">'+
+    '<tr><th>달 황경</th><td>'+chart.moon.lon.toFixed(2)+'° ('+moonZ.n+' '+chart.moon.zodiac.deg.toFixed(1)+'°)</td></tr>'+
+    (chart.hasTime?'<tr><th>달이 든 하우스</th><td><strong style="color:#7d5a1e">'+chart.moon.house+'하우스 - '+HOUSES[chart.moon.house-1].a+'</strong></td></tr>':'')+
+    '<tr><th>달의 성질</th><td>'+moonZ.kw+'</td></tr>'+
+    '</table>'+
+    '<div class="warm-card"><h3>🌙 '+nm+'님의 감정 별자리</h3>'+
+    '<p>'+applyName('박쌤의 달은 <strong>'+moonZ.n+'</strong>에 있습니다. ',nm)+'달은 박쌤의 가장 사적인 감정, 어린 시절의 패턴, 무의식의 결을 다스립니다. '+moonZ.desc.replace(/박쌤/g,nm+'님').split('.')[0]+'.</p>'+
+    (chart.hasTime?'<p>'+applyName('박쌤의 달이 '+chart.moon.house+'하우스에 있다는 건, 박쌤의 감정이 「'+HOUSES[chart.moon.house-1].a+'」 영역에서 가장 활발히 움직인다는 뜻입니다. 박쌤은 이 영역에서 깊은 안전감과 충만함을 느낍니다.',nm)+'</p>':'<p style="color:#a02018"><strong>※ 정확한 시간 모를 때:</strong> 달의 별자리는 하루에 빠르게 이동하므로 시간 정보 없이는 ±2도 정도 오차가 있을 수 있습니다. 별자리 경계 부근(0~3° 또는 27~30°)이면 인접 별자리일 수도 있습니다.</p>')+
+    '</div>');
+
+  // 4) 어센던트 (시간이 있을 때만)
+  if(chart.hasTime){
+    var ascZ=chart.asc.zodiac.sign;
+    html+=sec('A3','🌅 어센던트·상승궁 (Ascendant) '+ascZ.em+' '+ascZ.n,'박쌤이 세상에 드러나는 첫 인상',
+      '<table class="info-table">'+
+      '<tr><th>어센던트 황경</th><td>'+chart.asc.lon.toFixed(2)+'° ('+ascZ.n+' '+chart.asc.zodiac.deg.toFixed(1)+'°)</td></tr>'+
+      '<tr><th>1하우스 별자리</th><td><strong style="color:#7d5a1e">'+ascZ.n+'</strong> - '+ascZ.kw+'</td></tr>'+
+      '<tr><th>지배 행성</th><td>'+ascZ.rule+' (박쌤의 차트 주인)</td></tr>'+
+      '</table>'+
+      '<div class="dark-card"><h3>🌅 '+nm+'님의 상승궁</h3>'+
+      '<p>'+applyName('박쌤이 태어나는 순간, 동쪽 지평선에 떠오르고 있던 별자리는 <strong>'+ascZ.n+'</strong>이었습니다. ',nm)+'어센던트는 박쌤이 세상에 보여지는 첫 인상이자, 박쌤이 인생을 시작하는 방식입니다.</p>'+
+      '<p>'+applyName(ascZ.desc,nm)+'</p>'+
+      '<p style="margin-top:10px"><strong>차트의 주인 행성</strong>: '+ascZ.rule+' - 이 행성이 박쌤 전체 차트를 지배합니다. 박쌤의 인생을 풀어가는 키스톤입니다.</p>'+
+      '</div>');
+  }
+
+  // 5) 12하우스 (Whole Sign 방식, 박쌤 차트에 실제 매핑)
+  if(chart.hasTime){
+    var housesHTML='<div class="warm-card" style="margin-bottom:12px"><p><strong>🏛️ Whole Sign 방식</strong>: 박쌤의 어센던트가 든 별자리(<strong>'+chart.asc.zodiac.sign.n+'</strong>)가 1하우스가 됩니다. 그 다음 별자리가 2하우스, 순서대로 12개 영역이 박쌤의 인생에 배치됩니다.</p></div>';
+    housesHTML+='<div class="houses-grid">';
+    chart.houses.forEach(function(h,i){
+      var hasSun=(chart.sun.house===h.houseNum);
+      var hasMoon=(chart.moon.house===h.houseNum);
+      var hasAsc=(h.houseNum===1);
+      var marker='';
+      if(hasSun)marker+=' ☀️';
+      if(hasMoon)marker+=' 🌙';
+      if(hasAsc)marker+=' 🌅';
+      var hilite=(hasSun||hasMoon||hasAsc)?'border-color:#c9a84c;background:linear-gradient(135deg,#fef8e8,#fff5d8);box-shadow:0 4px 12px rgba(201,168,76,.25)':'';
+      housesHTML+='<div class="house-card" style="'+hilite+'">'+
+        '<div class="house-head"><div class="house-num">'+h.houseNum+'</div>'+
+        '<div><div class="house-name">'+h.meta.n+marker+'</div>'+
+        '<div class="house-area">'+h.meta.a+'</div></div></div>'+
+        '<div style="font-size:11px;color:#7a6038;margin-bottom:6px"><strong>'+h.sign.em+' '+h.sign.n+'</strong> 별자리가 이 영역을 다스립니다</div>'+
+        '<div class="house-desc">'+applyName(h.meta.d,nm)+'</div>'+
+        (hasSun?'<div style="margin-top:8px;padding:7px;background:rgba(240,208,128,.2);border-radius:6px;font-size:11.5px;color:#7d5a1e"><strong>☀️ 박쌤의 태양</strong>이 여기 있어, 박쌤의 자아가 이 영역에서 가장 빛납니다.</div>':'')+
+        (hasMoon?'<div style="margin-top:8px;padding:7px;background:rgba(150,180,220,.18);border-radius:6px;font-size:11.5px;color:#2c5582"><strong>🌙 박쌤의 달</strong>이 여기 있어, 박쌤의 감정이 이 영역에서 가장 충만합니다.</div>':'')+
+        '</div>';
+    });
+    housesHTML+='</div>';
+    html+=sec('A4','🏛️ 박쌤의 12하우스 (Whole Sign)','박쌤의 실제 천체 배치로 풀어드리는 인생 12영역',housesHTML);
+  }else{
+    // 시간 모를 때
+    var housesHTML='<div class="warm-card"><p><strong>※ 출생 시간이 없으면 정확한 12하우스를 계산할 수 없습니다.</strong> ';
+    housesHTML+=applyName('박쌤이 시간을 아시게 되면 다시 진단해 주세요. 아래는 12하우스 영역의 일반적 의미입니다.',nm)+'</p></div>';
+    housesHTML+='<div class="houses-grid">';
+    HOUSES.forEach(function(h,i){
+      housesHTML+='<div class="house-card"><div class="house-head"><div class="house-num">'+(i+1)+'</div><div><div class="house-name">'+h.n+'</div><div class="house-area">'+h.a+'</div></div></div><div class="house-desc">'+applyName(h.d,nm)+'</div></div>';
+    });
+    housesHTML+='</div>';
+    html+=sec('A4','12하우스 일반 의미','시간 없이는 영역 설명만 가능합니다',housesHTML);
+  }
+
+  // 6) 별자리 궁합
   var compatGood={염소자리:['황소자리','처녀자리'],물병자리:['쌍둥이자리','천칭자리'],물고기자리:['게자리','전갈자리'],양자리:['사자자리','사수자리'],황소자리:['처녀자리','염소자리'],쌍둥이자리:['천칭자리','물병자리'],게자리:['전갈자리','물고기자리'],사자자리:['양자리','사수자리'],처녀자리:['황소자리','염소자리'],천칭자리:['쌍둥이자리','물병자리'],전갈자리:['게자리','물고기자리'],사수자리:['양자리','사자자리']};
   var good=compatGood[s.n]||[];
-  html+=sec('A2','별자리 궁합','박쌤과 잘 맞는 별자리',
+  html+=sec('A5','💕 별자리 궁합','박쌤의 태양궁 기반 인연 매칭',
     '<div class="warm-card"><h3>💕 '+nm+'님과 잘 맞는 별자리</h3>'+
-    '<p><strong>최고의 궁합</strong>: '+good.join(', ')+' - 박쌤과 같은 원소 그룹으로 깊은 공감대를 만듭니다.</p>'+
-    '<p><strong>도전적 인연</strong>: 박쌤의 반대 원소 별자리는 처음엔 부딪히지만 서로를 성장시키는 거울이 됩니다.</p></div>');
+    '<p><strong>최고의 궁합</strong>: '+good.join(', ')+' - 박쌤의 태양 원소(흙·물·불·바람)와 같은 그룹으로 깊은 공감대를 만듭니다.</p>'+
+    '<p><strong>도전적 인연</strong>: 박쌤의 반대 원소 별자리는 처음엔 부딪히지만 서로를 성장시키는 거울이 됩니다.</p>'+
+    (chart.hasTime?'<p style="margin-top:10px"><strong>💡 더 정확한 궁합</strong>은 상대방의 태양·달·금성·화성 별자리까지 비교해야 풀립니다. 박쌤의 어센던트가 <strong>'+chart.asc.zodiac.sign.n+'</strong>이라, 박쌤은 '+chart.asc.zodiac.sign.kw+'의 결을 가진 사람을 보면 자연스럽게 끌립니다.</p>':'')+
+    '</div>');
+
   return html;
 }
 
@@ -1730,10 +1938,15 @@ document.getElementById('submit-btn').addEventListener('click',function(){
   var m=parseInt(document.getElementById('f-month').value,10);
   var d=parseInt(document.getElementById('f-day').value,10);
   var h=parseInt(document.getElementById('f-hour').value,10);
+  var cityVal=document.getElementById('f-city').value;
+  var cityParts=cityVal.split(',');
+  var lat=parseFloat(cityParts[0]);
+  var lon=parseFloat(cityParts[1]);
+  var cityName=cityParts[2]||'서울';
   if(isNaN(y)||y<1930||y>2010){alert('년도를 1930~2010 사이로 입력해주세요');return;}
   if(isNaN(m)||m<1||m>12){alert('월을 1~12로 입력해주세요');return;}
   if(isNaN(d)||d<1||d>31){alert('일을 1~31로 입력해주세요');return;}
-  var input={name:nm,year:y,month:m,day:d,hour:isNaN(h)?-1:h,gender:$gender,cal:$cal};
+  var input={name:nm,year:y,month:m,day:d,hour:isNaN(h)?-1:h,gender:$gender,cal:$cal,lat:lat,lon:lon,cityName:cityName};
   document.getElementById('pg-input').style.display='none';
   document.getElementById('pg-loading').style.display='flex';
   // 단계별 로딩 애니메이션
