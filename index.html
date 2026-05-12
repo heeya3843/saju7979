@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>박쌤 운명 진단 v2 ✦ 사주·년월·타로·수비학·점성술</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#faf6ed;color:#2a2118;line-height:1.7;-webkit-font-smoothing:antialiased}
+
+.stars-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.star-tw{position:absolute;width:3px;height:3px;background:#f0d080;border-radius:50%;box-shadow:0 0 8px #f0d080;animation:tw 3s infinite}
+@keyframes tw{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}
+
+/* 입력 */
+#pg-input{min-height:100vh;background:radial-gradient(ellipse at top,#2d1b69 0%,#1a0a3d 50%,#0f0524 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative;overflow:hidden}
+#pg-input::before{content:"";position:absolute;top:-200px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(240,208,128,.12),transparent 70%);pointer-events:none}
+#pg-input::after{content:"";position:absolute;bottom:-200px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(180,100,200,.1),transparent 70%);pointer-events:none}
+.mandala{width:90px;height:90px;background:linear-gradient(135deg,#f5d97a,#c9a84c 50%,#8b6914);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(240,208,128,.6),inset 0 0 20px rgba(0,0,0,.2);margin-bottom:28px;position:relative;border-radius:8px;z-index:1}
+.mandala::before{content:"";position:absolute;inset:8px;border:1.5px solid rgba(255,255,255,.4);border-radius:4px;animation:rot 30s linear infinite}
+.mandala span{transform:rotate(-45deg);font-size:36px;text-shadow:0 0 15px rgba(255,255,255,.5)}
+@keyframes rot{to{transform:rotate(360deg)}}
+.intro-title{font-size:34px;color:#f5d97a;letter-spacing:8px;margin-bottom:8px;font-weight:300;text-shadow:0 0 30px rgba(240,208,128,.5);position:relative;z-index:1}
+.intro-sub{font-size:13px;color:rgba(255,255,255,.55);letter-spacing:3px;margin-bottom:30px;text-align:center;line-height:1.9;position:relative;z-index:1}
+.intro-sub strong{color:#f5d97a;font-weight:500}
+.form-box{background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));backdrop-filter:blur(12px);border:1px solid rgba(240,208,128,.3);border-radius:20px;padding:32px;width:100%;max-width:540px;box-shadow:0 20px 50px rgba(0,0,0,.4);position:relative;z-index:1}
+.form-box::before{content:"✦";position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:22px;color:#f5d97a;background:#1a0a3d;padding:0 10px;text-shadow:0 0 10px rgba(240,208,128,.6)}
+.form-box h2{color:#f5d97a;font-size:16px;margin-bottom:22px;text-align:center;letter-spacing:3px;font-weight:400}
+.fgroup{margin-bottom:14px}
+.fgroup label{display:block;color:rgba(255,255,255,.7);font-size:12px;margin-bottom:6px;letter-spacing:1px}
+.finput,.fselect{width:100%;padding:12px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;color:#fff;font-size:14px;outline:none;font-family:inherit;transition:all .25s}
+.finput:focus,.fselect:focus{border-color:#f5d97a;background:rgba(255,255,255,.12);box-shadow:0 0 0 3px rgba(240,208,128,.15)}
+.finput::placeholder{color:rgba(255,255,255,.35)}
+.fselect option{background:#2d1b69;color:#fff}
+.date-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+.cal-toggle{display:flex;margin-bottom:16px;border:1px solid rgba(240,208,128,.3);border-radius:10px;overflow:hidden;background:rgba(0,0,0,.2)}
+.cal-btn{flex:1;padding:11px;text-align:center;cursor:pointer;color:rgba(255,255,255,.55);font-size:13px;background:transparent;border:none;font-family:inherit;transition:all .2s;letter-spacing:.5px}
+.cal-btn.active{background:linear-gradient(135deg,rgba(240,208,128,.25),rgba(201,168,76,.18));color:#f5d97a;font-weight:600}
+.gender-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gbtn{padding:12px 8px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);cursor:pointer;text-align:center;font-size:14px;user-select:none;font-family:inherit;transition:all .2s}
+.gbtn.selected{border-color:#f5d97a;background:linear-gradient(135deg,rgba(240,208,128,.2),rgba(201,168,76,.12));color:#f5d97a;font-weight:600;box-shadow:0 0 15px rgba(240,208,128,.2)}
+.submit-btn{width:100%;padding:15px;background:linear-gradient(135deg,#f5d97a 0%,#c9a84c 50%,#8b6914 100%);border:none;border-radius:12px;color:#1a0a3d;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:3px;font-family:inherit;margin-top:16px;box-shadow:0 8px 24px rgba(240,208,128,.3);transition:all .25s}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(240,208,128,.45)}
+.hint{color:rgba(255,255,255,.45);font-size:11px;text-align:center;margin-top:16px;line-height:1.8;letter-spacing:.3px}
+
+/* 로딩 */
+#pg-loading{display:none;min-height:100vh;background:radial-gradient(ellipse at center,#2d1b69,#0f0524);flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.orbit{width:140px;height:140px;border:1px solid rgba(240,208,128,.2);border-radius:50%;position:relative;animation:rot 4s linear infinite;margin-bottom:32px}
+.orbit::before,.orbit::after{content:"";position:absolute;border-radius:50%}
+.orbit::before{inset:15px;border:1px solid rgba(240,208,128,.3);animation:rot 3s linear infinite reverse}
+.orbit::after{inset:30px;border:1px solid rgba(240,208,128,.4)}
+.orbit-star{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:12px;height:12px;background:#f5d97a;border-radius:50%;box-shadow:0 0 20px #f5d97a}
+.load-title{color:#f5d97a;font-size:17px;letter-spacing:4px;margin-bottom:22px;font-weight:300}
+.load-sub{color:rgba(255,255,255,.5);font-size:12px;letter-spacing:2px;margin-bottom:24px}
+.step-list{list-style:none;width:340px;max-width:90%}
+.step-item{padding:9px 0;color:rgba(255,255,255,.3);font-size:13px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);transition:all .3s}
+.step-item::before{content:"○";font-size:16px;min-width:20px;transition:all .3s}
+.step-item.done{color:rgba(255,255,255,.9)}
+.step-item.done::before{content:"✦";color:#f5d97a;text-shadow:0 0 10px #f5d97a}
+
+/* 결과 */
+#pg-result{display:none;max-width:1000px;margin:0 auto;padding:20px 14px 60px}
+.toolbar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;justify-content:center}
+.tbtn{padding:10px 18px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;border:none;transition:all .2s}
+.tbtn-back{background:linear-gradient(135deg,#fdf6e0,#f0e0b8);border:1px solid #c9a84c!important;color:#5d4814}
+.tbtn-print{background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:#f5d97a}
+.tbtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+
+.cover-r{background:radial-gradient(ellipse at 30% 20%,#3d2a73 0%,#1a0a3d 50%,#0f0524 100%);border-radius:24px;padding:44px 28px;text-align:center;color:#fff;margin-bottom:22px;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(26,10,61,.3)}
+.cover-r::before{content:"";position:absolute;top:0;right:0;width:300px;height:300px;background:radial-gradient(circle,rgba(240,208,128,.18),transparent 70%);pointer-events:none}
+.cover-r::after{content:"";position:absolute;bottom:0;left:0;width:280px;height:280px;background:radial-gradient(circle,rgba(180,100,200,.15),transparent 70%);pointer-events:none}
+.cover-r .brand{color:rgba(240,208,128,.7);font-size:11px;letter-spacing:4px;margin-bottom:22px;position:relative;z-index:1}
+.cover-r .dia-s{width:56px;height:56px;background:linear-gradient(135deg,#f5d97a,#c9a84c);transform:rotate(45deg);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 36px rgba(240,208,128,.55);border-radius:6px;position:relative;z-index:1}
+.cover-r .dia-s span{transform:rotate(-45deg);font-size:24px;text-shadow:0 0 10px rgba(255,255,255,.4)}
+.cover-r h1{font-size:38px;color:#f5d97a;letter-spacing:6px;margin-bottom:10px;font-weight:300;position:relative;z-index:1;text-shadow:0 0 30px rgba(240,208,128,.4)}
+.cover-r .subt{color:rgba(255,255,255,.55);font-size:13px;letter-spacing:3px;margin-bottom:20px;position:relative;z-index:1}
+.cover-r .tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px;position:relative;z-index:1}
+.tag{background:rgba(240,208,128,.15);border:1px solid rgba(240,208,128,.35);border-radius:20px;padding:6px 14px;color:#f5d97a;font-size:12px;backdrop-filter:blur(6px)}
+.cover-r .quote{color:rgba(255,255,255,.85);font-size:13.5px;line-height:2.1;max-width:580px;margin:18px auto 0;font-style:italic;position:relative;z-index:1}
+.cover-r .quote strong{color:#f5d97a;font-style:normal;font-weight:600}
+
+.tabs-wrap{background:#fff;border-radius:16px;padding:8px;margin-bottom:18px;box-shadow:0 4px 16px rgba(90,60,20,.08);position:sticky;top:8px;z-index:20;border:1px solid #f0e6d0}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:#7a6038;background:transparent;border:none;font-family:inherit;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+.tab:hover{background:#fdf6e0;color:#5d4814}
+.tab.active{background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:#f5d97a;box-shadow:0 4px 12px rgba(26,10,61,.25)}
+.tab-icon{font-size:15px}
+.tab-pane{display:none;animation:fade .35s ease}
+.tab-pane.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.section{background:#fff;border-radius:16px;padding:26px;margin-bottom:18px;box-shadow:0 4px 14px rgba(90,60,20,.07);border:1px solid #f5ecd5}
+.sec-h{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #faf0d8}
+.sec-num{width:44px;height:44px;background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:#f5d97a;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;box-shadow:0 4px 10px rgba(26,10,61,.2)}
+.sec-title{font-size:18px;font-weight:700;color:#1a0a3d;letter-spacing:.3px}
+.sec-desc{font-size:12px;color:#9c8060;margin-top:4px;letter-spacing:.2px}
+
+.saju-table{width:100%;border-collapse:collapse;font-size:13px;border-radius:10px;overflow:hidden}
+.saju-table th,.saju-table td{border:1px solid #f0e0c0;padding:11px 8px;text-align:center}
+.saju-table thead th{background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:#f5d97a;font-size:12.5px;font-weight:600;letter-spacing:1px}
+.saju-table tbody td:first-child{background:#faf0d8;font-weight:700;color:#7a6038;font-size:11.5px}
+.stem-c{font-size:28px;font-weight:700;line-height:1.2}
+.branch-c{font-size:24px;font-weight:600;line-height:1.2}
+.elem-c{font-size:11px;color:#9c8060;margin-top:3px}
+
+.el-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.el-name{width:62px;font-size:13px;font-weight:600}
+.el-track{flex:1;height:28px;background:#faf0d8;border-radius:8px;overflow:hidden}
+.el-fill{height:100%;border-radius:8px;display:flex;align-items:center;padding-left:12px;color:#fff;font-size:12px;font-weight:600;transition:width .8s}
+.el-cnt{width:36px;text-align:right;font-size:14px;font-weight:700}
+
+.dark-card{background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:rgba(255,255,255,.9);border-radius:14px;padding:24px;margin-top:16px;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(26,10,61,.2)}
+.dark-card::before{content:"";position:absolute;top:0;right:0;width:200px;height:200px;background:radial-gradient(circle,rgba(240,208,128,.1),transparent 70%);pointer-events:none}
+.dark-card h3{color:#f5d97a;font-size:15.5px;margin-bottom:14px;letter-spacing:1.5px;position:relative;z-index:1}
+.dark-card p{font-size:14px;line-height:2.05;margin-bottom:11px;position:relative;z-index:1}
+.dark-card ul{margin-top:10px;padding-left:22px;position:relative;z-index:1}
+.dark-card li{font-size:13.5px;line-height:2;margin-bottom:7px}
+.dark-card strong{color:#f5d97a}
+
+.warm-card{background:linear-gradient(135deg,#fef8e8,#fff5d8);border:1.5px solid #e8d4a0;border-radius:14px;padding:22px;margin-top:14px;color:#5d4814}
+.warm-card h3{color:#7d5a1e;font-size:15px;margin-bottom:12px;letter-spacing:1px;font-weight:700}
+.warm-card p{font-size:13.8px;line-height:1.95;margin-bottom:9px}
+.warm-card strong{color:#8b3e1e}
+
+.info-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;border-radius:10px;overflow:hidden}
+.info-table th{background:#faf0d8;padding:11px 13px;text-align:left;border:1px solid #ecdcb4;font-size:11.8px;color:#7a6038;width:28%;letter-spacing:.5px}
+.info-table td{padding:11px 13px;border:1px solid #ecdcb4;font-size:13px;line-height:1.8;color:#3a2e1c}
+
+.ssal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+.ssal-card{background:#faf6ed;border:2px solid #f0e0c0;border-radius:12px;padding:14px;text-align:center;transition:all .2s}
+.ssal-card.has{border-color:#c9a84c;background:linear-gradient(135deg,#fef8e8,#fff5d8);box-shadow:0 4px 12px rgba(201,168,76,.15)}
+.ssal-name{font-size:12.5px;font-weight:700;color:#1a0a3d;margin-bottom:6px}
+.ssal-val{font-size:20px;font-weight:700;margin-bottom:4px}
+.ssal-where{font-size:11px;color:#9c8060}
+
+.timeline{display:flex;flex-direction:column;gap:11px}
+.tl-item{display:flex;gap:14px}
+.tl-left{display:flex;flex-direction:column;align-items:center}
+.tl-dot{width:16px;height:16px;border-radius:50%;background:#e0d0a8;flex-shrink:0;transition:all .2s}
+.tl-dot.active{background:#c9a84c;box-shadow:0 0 14px rgba(201,168,76,.6)}
+.tl-bar{width:2px;flex:1;background:#e0d0a8;margin:2px auto}
+.tl-bar.active{background:linear-gradient(180deg,#c9a84c,#e0d0a8)}
+.tl-body{flex:1;padding:14px 18px;background:#faf6ed;border-radius:12px;border:1px solid #f0e0c0}
+.tl-body.active{background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:#fff;border-color:#c9a84c;box-shadow:0 6px 18px rgba(26,10,61,.2)}
+.tl-age{font-size:11.5px;color:#9c8060;letter-spacing:.5px}
+.tl-body.active .tl-age{color:rgba(255,255,255,.6)}
+.tl-ganji{font-size:22px;font-weight:700;color:#1a0a3d;margin-top:3px}
+.tl-body.active .tl-ganji{color:#f5d97a}
+.tl-elem{font-size:11.5px;color:#9c8060;margin-top:3px}
+.tl-body.active .tl-elem{color:rgba(255,255,255,.7)}
+.tl-desc{font-size:12.5px;color:#5d4814;margin-top:7px;line-height:1.8}
+.tl-body.active .tl-desc{color:rgba(255,255,255,.85)}
+
+.year-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px}
+.year-card{background:#faf6ed;border:1.5px solid #f0e0c0;border-radius:12px;padding:13px;text-align:center;transition:all .2s}
+.year-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(201,168,76,.18)}
+.year-card.cur{background:linear-gradient(135deg,#3d2a73,#1a0a3d);border-color:#c9a84c;color:#fff;box-shadow:0 6px 18px rgba(26,10,61,.25)}
+.yc-year{font-size:11.5px;color:#9c8060;margin-bottom:5px}
+.year-card.cur .yc-year{color:rgba(255,255,255,.6)}
+.yc-ganji{font-size:19px;font-weight:700;color:#1a0a3d}
+.year-card.cur .yc-ganji{color:#f5d97a}
+.yc-star{font-size:11.5px;color:#7a6038;margin-top:4px}
+.year-card.cur .yc-star{color:rgba(255,255,255,.7)}
+
+/* 년월별 */
+.month-wrap{display:grid;gap:14px}
+.month-card{background:linear-gradient(135deg,#fff,#fdf9f0);border:1.5px solid #f0e0c0;border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:all .25s}
+.month-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(201,168,76,.15);border-color:#c9a84c}
+.month-card::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%;background:linear-gradient(180deg,#f5d97a,#c9a84c)}
+.mc-head{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1.5px dashed #e8d4a0}
+.mc-month-num{width:54px;height:54px;background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:#f5d97a;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.mc-mn-num{font-size:21px;line-height:1}
+.mc-mn-lbl{font-size:9px;opacity:.7;margin-top:2px;letter-spacing:1px}
+.mc-title{flex:1}
+.mc-title h4{font-size:16.5px;color:#1a0a3d;font-weight:700;margin-bottom:3px}
+.mc-meta{font-size:11.5px;color:#9c8060;letter-spacing:.3px}
+.mc-ganji-tag{background:linear-gradient(135deg,#fef8e8,#fff5d8);border:1px solid #c9a84c;border-radius:18px;padding:5px 12px;color:#7d5a1e;font-size:12px;font-weight:700;white-space:nowrap}
+.mc-stars{color:#c9a84c;font-size:15px;letter-spacing:1.5px;margin-bottom:12px}
+.mc-rows{display:grid;gap:9px}
+.mc-row{display:flex;gap:11px;padding:10px 12px;background:#faf6ed;border-radius:9px;border-left:3px solid #c9a84c}
+.mc-row-icon{font-size:19px;flex-shrink:0}
+.mc-row-body{flex:1}
+.mc-row-lbl{font-size:11.5px;color:#7a6038;font-weight:700;letter-spacing:.4px;margin-bottom:3px}
+.mc-row-txt{font-size:13px;color:#3a2e1c;line-height:1.75}
+.mc-row.warn{background:linear-gradient(135deg,#fff0f0,#ffe8e8);border-left-color:#d8483b}
+.mc-row.warn .mc-row-lbl{color:#a02018}
+.mc-row.good{background:linear-gradient(135deg,#f0faf0,#e8f8e8);border-left-color:#2d8a4e}
+.mc-row.good .mc-row-lbl{color:#1e5a32}
+.mc-foot{margin-top:14px;padding:13px 15px;background:linear-gradient(135deg,#1a0a3d,#2d1b69);color:rgba(255,255,255,.92);border-radius:10px;font-size:12.8px;line-height:1.85}
+.mc-foot strong{color:#f5d97a}
+
+/* 타로 */
+.tarot-wrap{display:flex;flex-direction:column;gap:18px}
+.tarot-mode{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.tmode-btn{padding:10px 16px;background:#faf6ed;border:1.5px solid #e8d4a0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:#7a6038;font-family:inherit;transition:all .2s}
+.tmode-btn.active{background:linear-gradient(135deg,#3d2a73,#1a0a3d);border-color:#c9a84c;color:#f5d97a}
+.tmode-btn:hover:not(.active){background:#fef8e8;border-color:#c9a84c}
+.tarot-question-box{background:linear-gradient(135deg,#fef8e8,#fff5d8);border:2px solid #e8d4a0;border-radius:12px;padding:16px;margin-bottom:10px}
+.tarot-question-box label{display:block;font-size:12px;color:#7d5a1e;margin-bottom:6px;font-weight:700;letter-spacing:.5px}
+.tarot-question-box input{width:100%;padding:11px 14px;border:1.5px solid #e0d0a8;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:#fff}
+.tarot-question-box input:focus{border-color:#c9a84c}
+
+.tarot-board{background:linear-gradient(135deg,#1a0a3d,#0f0524);border-radius:16px;padding:24px;min-height:220px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;position:relative;overflow:hidden}
+.tarot-board::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(240,208,128,.08),transparent 70%);pointer-events:none}
+.card-back{width:82px;height:128px;background:linear-gradient(135deg,#3d2a73,#1a0a3d);border:2px solid #c9a84c;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .35s;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.card-back::before{content:"✦";font-size:30px;color:#f5d97a;text-shadow:0 0 12px rgba(240,208,128,.6)}
+.card-back::after{content:"";position:absolute;inset:6px;border:1px solid rgba(240,208,128,.4);border-radius:6px;pointer-events:none}
+.card-back:hover{transform:translateY(-6px) scale(1.04);box-shadow:0 10px 24px rgba(240,208,128,.3)}
+.card-back.picked{transform:scale(.92);opacity:.45;pointer-events:none}
+.draw-tarot-btn{padding:13px 28px;background:linear-gradient(135deg,#f5d97a,#c9a84c);border:none;border-radius:12px;color:#1a0a3d;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:2px;font-family:inherit;box-shadow:0 8px 20px rgba(240,208,128,.3);transition:all .25s}
+.draw-tarot-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(240,208,128,.45)}
+
+.tarot-spread{display:grid;gap:12px;margin-bottom:14px}
+.tarot-spread.t3{grid-template-columns:repeat(3,1fr)}
+.tarot-spread.t1{grid-template-columns:1fr;max-width:280px;margin:0 auto}
+.tarot-spread.t5{grid-template-columns:repeat(5,1fr)}
+.tcard{background:linear-gradient(155deg,#fef8e8,#fff5d8);border:2px solid #c9a84c;border-radius:12px;padding:14px;text-align:center;animation:flip .6s ease;box-shadow:0 6px 18px rgba(201,168,76,.2);position:relative}
+@keyframes flip{0%{transform:rotateY(90deg);opacity:0}100%{transform:rotateY(0);opacity:1}}
+.tcard.rev{transform:scaleY(1)}
+.tcard.rev .tc-sym{transform:rotate(180deg);display:inline-block}
+.tc-pos{font-size:10px;color:#7a6038;letter-spacing:1.5px;margin-bottom:6px;font-weight:700}
+.tc-sym{font-size:36px;margin-bottom:6px;line-height:1}
+.tc-name{font-size:14.5px;font-weight:700;color:#1a0a3d;margin-bottom:3px}
+.tc-en{font-size:10.5px;color:#9c8060;margin-bottom:8px;letter-spacing:1px}
+.tc-dir{font-size:11px;display:inline-block;padding:3px 10px;border-radius:12px;font-weight:700;margin-bottom:8px}
+.tc-dir.up{background:#e8f5e9;color:#2d8a4e}
+.tc-dir.rev{background:#ffe8e8;color:#a02018}
+.tc-meaning{font-size:11.5px;color:#5d4814;line-height:1.6;text-align:left;margin-top:6px;padding-top:8px;border-top:1px dashed #e0d0a8}
+.tarot-interp{background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:rgba(255,255,255,.92);border-radius:14px;padding:22px;line-height:2}
+.tarot-interp h4{color:#f5d97a;font-size:15.5px;margin-bottom:13px;letter-spacing:1.5px}
+.tarot-interp p{font-size:13.5px;margin-bottom:10px}
+.tarot-interp strong{color:#f5d97a}
+
+/* 수비학 */
+.numero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.num-card{background:linear-gradient(155deg,#fff,#fdf9f0);border:2px solid #f0e0c0;border-radius:14px;padding:18px;text-align:center;position:relative;overflow:hidden;transition:all .2s}
+.num-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(201,168,76,.18);border-color:#c9a84c}
+.num-card::before{content:"";position:absolute;top:0;right:0;width:60px;height:60px;background:radial-gradient(circle,rgba(240,208,128,.15),transparent 70%);border-radius:50%}
+.num-lbl{font-size:11.5px;color:#7a6038;font-weight:700;letter-spacing:1.5px;margin-bottom:8px}
+.num-big{font-size:54px;font-weight:700;background:linear-gradient(135deg,#3d2a73,#c9a84c);background-clip:text;-webkit-background-clip:text;color:transparent;line-height:1;margin-bottom:8px}
+.num-meaning{font-size:11.5px;color:#5d4814;line-height:1.6;text-align:left;padding:8px 6px 0;border-top:1px dashed #e8d4a0;margin-top:8px}
+.lucky-pad{background:linear-gradient(135deg,#fef8e8,#fff5d8);border:2px solid #e8d4a0;border-radius:14px;padding:18px;margin-top:14px}
+.lucky-pad h4{color:#7d5a1e;font-size:14px;margin-bottom:12px;letter-spacing:1px}
+.lucky-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #e8d4a0;font-size:13px}
+.lucky-row:last-child{border-bottom:none}
+.lucky-row span:first-child{color:#7a6038;font-weight:600}
+.lucky-row span:last-child{color:#5d4814;font-weight:700}
+
+/* 점성술 12하우스 */
+.houses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:12px}
+.house-card{background:linear-gradient(135deg,#fdf9f0,#fff);border:1.5px solid #e8d4a0;border-radius:11px;padding:14px;transition:all .2s}
+.house-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(201,168,76,.18)}
+.house-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.house-num{width:34px;height:34px;background:linear-gradient(135deg,#3d2a73,#1a0a3d);color:#f5d97a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.house-name{font-size:13.5px;font-weight:700;color:#1a0a3d}
+.house-area{font-size:10.5px;color:#9c8060;letter-spacing:.3px}
+.house-desc{font-size:12px;color:#5d4814;line-height:1.7}
+
+/* Q&A */
+.qa-input-box{background:linear-gradient(135deg,#fef8e8,#fff5d8);border:2px solid #c9a84c;border-radius:14px;padding:18px;margin-bottom:14px}
+.qa-input-box h4{color:#7d5a1e;font-size:14px;margin-bottom:11px}
+.qa-input-row{display:flex;gap:8px}
+.qa-input{flex:1;padding:14px 16px;border:2px solid #e0d0a8;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fff;color:#3a2e1c}
+.qa-input:focus{border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.qa-ask-btn{padding:14px 22px;background:linear-gradient(135deg,#c9a84c,#8b6914);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;letter-spacing:1px}
+.qa-ask-btn:hover{opacity:.9}
+.qa-examples{margin-top:10px;font-size:11.5px;color:#9c8060;line-height:1.7}
+.qa-tag{display:inline-block;background:rgba(201,168,76,.18);color:#7d5a1e;padding:3px 10px;border-radius:12px;margin:2px 3px;font-size:11px;cursor:pointer;transition:all .15s}
+.qa-tag:hover{background:rgba(201,168,76,.4);color:#fff}
+.qa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px;margin-top:14px}
+.qa-card{background:linear-gradient(135deg,#faf6ed,#fff);border:1.5px solid #f0e0c0;border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .2s}
+.qa-card:hover{border-color:#c9a84c;background:linear-gradient(135deg,#fef8e8,#fff);transform:translateY(-2px);box-shadow:0 6px 14px rgba(201,168,76,.2)}
+.qa-card.active{border-color:#c9a84c;background:linear-gradient(135deg,#fef8e8,#fff5d8);box-shadow:0 6px 14px rgba(201,168,76,.25)}
+.qa-card-icon{font-size:26px;margin-bottom:6px}
+.qa-card-title{font-size:12px;font-weight:700;color:#1a0a3d;margin-bottom:3px}
+.qa-card-sub{font-size:10.5px;color:#9c8060}
+.qa-answer{margin-top:18px;animation:fade .35s}
+
+@media print{
+  #pg-input,#pg-loading,.toolbar,.qa-input-box,.tabs-wrap,.tarot-mode,.draw-tarot-btn,.tmode-btn,.tarot-question-box,.tarot-board{display:none!important}
+  #pg-result{display:block!important}
+  .tab-pane{display:block!important;page-break-before:always}
+  .tab-pane:first-of-type{page-break-before:auto}
+  body{background:#fff}
+  .section,.month-card{break-inside:avoid;box-shadow:none;border:1px solid #e0d0a8}
+  .cover-r,.dark-card,.tarot-interp,.year-card.cur,.tl-body.active,.mc-foot,.mc-month-num,.house-num{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:14mm 11mm;size:A4}
+}
+@media(max-width:600px){
+  .date-row{grid-template-columns:1fr 1fr}
+  .saju-table{font-size:11.5px}.stem-c{font-size:22px}.branch-c{font-size:18px}
+  .qa-input-row{flex-direction:column}
+  .intro-title{font-size:26px;letter-spacing:5px}
+  .cover-r h1{font-size:28px;letter-spacing:4px}
+  .tarot-spread.t3{grid-template-columns:1fr 1fr}
+  .tarot-spread.t5{grid-template-columns:repeat(3,1fr)}
+  .card-back{width:64px;height:100px}
+  .card-back::before{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- 입력 -->
+<div id="pg-input">
+  <div class="stars-bg" id="stars-bg"></div>
+  <div class="mandala"><span>✦</span></div>
+  <div class="intro-title">박쌤 운명 진단</div>
+  <div class="intro-sub">
+    <strong>사주팔자 · 점성술 · 타로 · 수비학</strong><br>
+    네 가지 운명의 언어로 풀어드리는<br>
+    당신만의 종합 운명 보고서
+  </div>
+  <div class="form-box">
+    <h2>✦ 종합 진단 시작 ✦</h2>
+    <div class="cal-toggle">
+      <button class="cal-btn active" id="btn-solar">☀️ 양력</button>
+      <button class="cal-btn" id="btn-lunar">🌙 음력</button>
+    </div>
+    <div class="fgroup"><label>이름 (결과지에 자동 반영됩니다)</label>
+      <input class="finput" id="f-name" type="text" placeholder="진단받을 분의 성함을 입력해주세요"></div>
+    <div class="fgroup"><label id="lbl-date">생년월일 (양력)</label>
+      <div class="date-row">
+        <input class="finput" id="f-year" type="number" placeholder="년도(1930~2010)" min="1930" max="2010">
+        <input class="finput" id="f-month" type="number" placeholder="월" min="1" max="12">
+        <input class="finput" id="f-day" type="number" placeholder="일" min="1" max="31">
+      </div>
+    </div>
+    <div class="fgroup"><label>태어난 시간 (점성술·시주 산출용)</label>
+      <select class="fselect" id="f-hour">
+        <option value="-1">시간 모름</option>
+        <option value="23">자시 23:00~01:00</option><option value="1">축시 01:00~03:00</option>
+        <option value="3">인시 03:00~05:00</option><option value="5">묘시 05:00~07:00</option>
+        <option value="7">진시 07:00~09:00</option><option value="9">사시 09:00~11:00</option>
+        <option value="11">오시 11:00~13:00</option><option value="13">미시 13:00~15:00</option>
+        <option value="15">신시 15:00~17:00</option><option value="17">유시 17:00~19:00</option>
+        <option value="19">술시 19:00~21:00</option><option value="21">해시 21:00~23:00</option>
+      </select>
+    </div>
+    <div class="fgroup"><label>성별</label>
+      <div class="gender-row">
+        <div class="gbtn" id="gbtn-M">♂ 남성</div>
+        <div class="gbtn selected" id="gbtn-F">♀ 여성</div>
+      </div>
+    </div>
+    <button class="submit-btn" id="submit-btn">✦ 운명의 문 열기 ✦</button>
+    <div class="hint">
+      사주 8글자 + 오행·십성·신살 + 대운·세운<br>
+      + 2026년 12개월 상세 풀이 + 타로 78장 + 수비학 + 점성술 12하우스
+    </div>
+  </div>
+</div>
+
+<!-- 로딩 -->
+<div id="pg-loading">
+  <div class="stars-bg" id="stars-bg2"></div>
+  <div class="orbit"><div class="orbit-star"></div></div>
+  <div class="load-title">✦ 운명을 읽는 중 ✦</div>
+  <div class="load-sub">하늘의 별이 당신의 이야기를 모으고 있습니다</div>
+  <ul class="step-list">
+    <li class="step-item" id="step1">사주 8글자 만세력 산출</li>
+    <li class="step-item" id="step2">오행·십성·신살·대운 분석</li>
+    <li class="step-item" id="step3">2026년 12개월 흐름 풀이</li>
+    <li class="step-item" id="step4">타로 78장 셔플링</li>
+    <li class="step-item" id="step5">수비학 코어 계산</li>
+    <li class="step-item" id="step6">서양 점성술 12하우스 매핑</li>
+    <li class="step-item" id="step7">네 가지 운명 융합 해석</li>
+    <li class="step-item" id="step8">최종 보고서 작성</li>
+  </ul>
+</div>
+
+<!-- 결과 -->
+<div id="pg-result">
+  <div class="toolbar">
+    <button class="tbtn tbtn-back" id="back-btn">← 다시 진단</button>
+    <button class="tbtn tbtn-print" id="print-btn">🖨 인쇄·PDF 저장</button>
+  </div>
+  <div id="cover-area"></div>
+  <div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+  <div id="panes"></div>
+  <div style="text-align:center;padding:30px 0 10px;color:#9c8060;font-size:11.5px;letter-spacing:2px">
+    ✦ 박쌤 운명 진단 v2 · 사주 × 점성 × 타로 × 수비학 ✦<br>
+    <span style="font-size:10.5px;opacity:.7">하늘이 주신 청사진은 감옥이 아닌 나침반입니다</span>
+  </div>
+</div>
+
+<script>
+// ════════════ 별빛 ════════════
+function makeStars(id,n){var b=document.getElementById(id);if(!b)return;for(var i=0;i<n;i++){var s=document.createElement('div');s.className='star-tw';s.style.top=Math.random()*100+'%';s.style.left=Math.random()*100+'%';s.style.animationDelay=(Math.random()*3)+'s';s.style.transform='scale('+(0.5+Math.random()*0.8)+')';b.appendChild(s);}}
+makeStars('stars-bg',40);makeStars('stars-bg2',30);
+
+// ════════════════════════════════════════════════════════
+// 사주 만세력 상수
+// ════════════════════════════════════════════════════════
+var STEMS=['갑','을','병','정','무','기','경','신','임','계'];
+var BRANCHES=['자','축','인','묘','진','사','오','미','신','유','술','해'];
+var S_ELEM=['목','목','화','화','토','토','금','금','수','수'];
+var B_ELEM=['수','토','목','목','토','화','화','토','금','금','토','수'];
+var EL_COLOR={목:'#2d8a4e',화:'#e74c3c',토:'#c9a84c',금:'#607d8b',수:'#3498db'};
+var EL_CSS={목:'linear-gradient(90deg,#2d8a4e,#4caf73)',화:'linear-gradient(90deg,#c0392b,#e74c3c)',토:'linear-gradient(90deg,#b8860b,#c9a84c)',금:'linear-gradient(90deg,#546e7a,#90a4ae)',수:'linear-gradient(90deg,#2471a3,#3498db)'};
+var EL_EMOJI={목:'🌳',화:'🔥',토:'🌍',금:'⚔️',수:'💧'};
+var EL_GEN={목:'화',화:'토',토:'금',금:'수',수:'목'};
+var EL_CTR={목:'토',화:'금',토:'수',금:'목',수:'화'};
+var EL_GEN_R={목:'수',화:'목',토:'화',금:'토',수:'금'};
+var EL_CTR_R={목:'금',화:'수',토:'목',금:'화',수:'토'};
+var HIDDEN={자:['계'],축:['기','계','신'],인:['갑','병','무'],묘:['을'],진:['무','을','계'],사:['병','경','무'],오:['정','기'],미:['기','정','을'],신:['경','임','무'],유:['신'],술:['무','신','정'],해:['임','갑']};
+var JIEQI=[[2,4,0],[3,6,1],[4,5,2],[5,6,3],[6,6,4],[7,7,5],[8,7,6],[9,8,7],[10,8,8],[11,7,9],[12,7,10]];
+var BR_MONTH=[2,3,4,5,6,7,8,9,10,11,12,1]; // 인=2월,묘=3월...
+var STEM_PINYIN={갑:'Jiǎ',을:'Yǐ',병:'Bǐng',정:'Dīng',무:'Wù',기:'Jǐ',경:'Gēng',신:'Xīn',임:'Rén',계:'Guǐ'};
+var BRANCH_ANIMAL={자:'🐭쥐',축:'🐮소',인:'🐯호랑이',묘:'🐰토끼',진:'🐲용',사:'🐍뱀',오:'🐴말',미:'🐑양',신:'🐵원숭이',유:'🐔닭',술:'🐶개',해:'🐷돼지'};
+
+// 음력 변환표
+var LUNAR_DATA={"1930":{"start":[1930,1,30],"months":[29,30,30,29,29,30,29,29,30,29,30,30,29],"leap":6},"1940":{"start":[1940,2,8],"months":[30,30,29,30,29,30,29,29,30,29,30,29],"leap":0},"1950":{"start":[1950,2,17],"months":[30,29,30,30,29,30,29,29,30,29,30,29],"leap":0},"1955":{"start":[1955,1,24],"months":[30,29,29,30,29,29,30,29,30,29,30,30,30],"leap":3},"1960":{"start":[1960,1,28],"months":[30,29,30,29,30,30,29,30,29,30,29,30,29],"leap":6},"1965":{"start":[1965,2,2],"months":[29,30,29,30,29,29,30,29,29,30,30,30],"leap":0},"1970":{"start":[1970,2,6],"months":[30,29,29,30,30,29,30,29,30,30,29,30],"leap":0},"1975":{"start":[1975,2,11],"months":[30,30,29,30,29,29,30,29,29,30,29,30],"leap":0},"1980":{"start":[1980,2,16],"months":[30,29,29,30,29,30,29,30,30,29,30,30],"leap":0},"1985":{"start":[1985,2,20],"months":[29,30,30,29,30,29,30,29,29,30,29,30],"leap":0},"1988":{"start":[1988,2,18],"months":[29,29,30,29,30,29,30,30,29,30,30,29],"leap":0},"1990":{"start":[1990,1,27],"months":[29,30,29,29,30,29,29,30,30,29,30,30,30],"leap":5},"1995":{"start":[1995,1,31],"months":[29,30,30,29,30,30,29,30,29,30,29,29,30],"leap":8},"2000":{"start":[2000,2,5],"months":[30,30,29,29,30,29,29,30,29,30,30,29],"leap":0},"2005":{"start":[2005,2,9],"months":[29,30,29,30,29,30,30,29,30,30,29,29],"leap":0},"2010":{"start":[2010,2,14],"months":[30,29,30,29,30,29,29,30,29,30,29,30],"leap":0}};
+
+function lunarToSolar(ly,lm,ld){var d=LUNAR_DATA[String(ly)];if(!d){alert('해당 연도의 음력 변환표가 없습니다. 양력으로 입력해주세요.');return null;}var days=0,idx=0;for(var m=1;m<lm;m++){days+=d.months[idx++];if(d.leap===m)days+=d.months[idx++];}days+=ld-1;var dt=new Date(d.start[0],d.start[1]-1,d.start[2]);dt.setDate(dt.getDate()+days);return[dt.getFullYear(),dt.getMonth()+1,dt.getDate()];}
+
+function getSajuMonthIdx(m,d){if(m===1)return(d<6)?10:11;var idx=11;for(var i=0;i<JIEQI.length;i++){if(m>JIEQI[i][0]||(m===JIEQI[i][0]&&d>=JIEQI[i][1]))idx=JIEQI[i][2];}return idx;}
+function getYearPillar(y,m,d){var yy=y;if(m<2||(m===2&&d<4))yy--;return{stem:STEMS[(yy-4+400)%10],branch:BRANCHES[(yy-4+480)%12]};}
+function getMonthPillar(y,m,d){var yy=y;if(m<2||(m===2&&d<4))yy--;var yi=(yy-4+400)%10;var smi=getSajuMonthIdx(m,d);var ss=((yi%5)*2+2)%10;return{stem:STEMS[(ss+smi)%10],branch:BRANCHES[(2+smi)%12]};}
+function getDayPillar(y,m,d){var yy=y,mm=m;if(mm<=2){yy--;mm+=12;}var A=Math.floor(yy/100),B=2-A+Math.floor(A/4);var JD=Math.floor(365.25*(yy+4716))+Math.floor(30.6001*(mm+1))+d+B-1524;var off=JD-2415021;return{stem:STEMS[((off%10)+10)%10],branch:BRANCHES[(off%12+10)%12]};}
+function getHourPillar(ds,h){if(h<0)return null;var hb=(h===23)?0:Math.floor((h+1)/2);var bi=hb%12;var di=STEMS.indexOf(ds);var st=[0,2,4,6,8,0,2,4,6,8];return{stem:STEMS[(st[di]+bi)%10],branch:BRANCHES[bi]};}
+function getTenStar(ds,os){var di=STEMS.indexOf(ds),oi=STEMS.indexOf(os);var de=S_ELEM[di],oe=S_ELEM[oi];var same=(di%2)===(oi%2);if(de===oe)return same?'비견':'겁재';if(EL_GEN[de]===oe)return same?'식신':'상관';if(EL_CTR[de]===oe)return same?'편재':'정재';if(EL_GEN[oe]===de)return same?'편인':'정인';if(EL_CTR[oe]===de)return same?'편관':'정관';return '';}
+function calcElements(pillars){var c={목:0,화:0,토:0,금:0,수:0};pillars.forEach(function(p){if(!p)return;c[S_ELEM[STEMS.indexOf(p.stem)]]+=2;c[B_ELEM[BRANCHES.indexOf(p.branch)]]+=2;(HIDDEN[p.branch]||[]).forEach(function(h){c[S_ELEM[STEMS.indexOf(h)]]+=1;});});return c;}
+function getStrength(de,pillars){var sup=0,tot=0;pillars.forEach(function(p){if(!p)return;var se=S_ELEM[STEMS.indexOf(p.stem)],be=B_ELEM[BRANCHES.indexOf(p.branch)];if(se===de||EL_GEN_R[de]===se)sup+=2;if(be===de||EL_GEN_R[de]===be)sup+=2;tot+=4;});return(sup*2>=tot)?'신강(身强)':'신약(身弱)';}
+
+// 신살
+function getSsalGroup(br){var g1=['인','오','술'],g2=['신','자','진'],g3=['사','유','축'],g4=['해','묘','미'];if(g1.indexOf(br)>=0)return 'g1';if(g2.indexOf(br)>=0)return 'g2';if(g3.indexOf(br)>=0)return 'g3';if(g4.indexOf(br)>=0)return 'g4';return null;}
+var DOHWA_MAP={g1:'묘',g2:'유',g3:'오',g4:'자'};
+var YEOKMA_MAP={g1:'신',g2:'인',g3:'해',g4:'사'};
+var HWAGAE_MAP={g1:'술',g2:'진',g3:'축',g4:'미'};
+var YANGIN_MAP={갑:'묘',을:'인',병:'오',정:'사',무:'오',기:'사',경:'유',신:'신',임:'자',계:'해'};
+function calcSsal(pillars,ds){
+  var yb=pillars[0]?pillars[0].branch:null, db=pillars[2]?pillars[2].branch:null;
+  var allBr=pillars.filter(Boolean).map(function(p){return p.branch});
+  var dohwa_y=yb?DOHWA_MAP[getSsalGroup(yb)]:null, dohwa_d=db?DOHWA_MAP[getSsalGroup(db)]:null;
+  var yeokma_y=yb?YEOKMA_MAP[getSsalGroup(yb)]:null, yeokma_d=db?YEOKMA_MAP[getSsalGroup(db)]:null;
+  var hwagae_y=yb?HWAGAE_MAP[getSsalGroup(yb)]:null, hwagae_d=db?HWAGAE_MAP[getSsalGroup(db)]:null;
+  var yangin=YANGIN_MAP[ds];
+  return{
+    dohwa:{val:dohwa_y||dohwa_d,where:allBr.filter(function(b){return b===dohwa_y||b===dohwa_d})},
+    yeokma:{val:yeokma_y||yeokma_d,where:allBr.filter(function(b){return b===yeokma_y||b===yeokma_d})},
+    hwagae:{val:hwagae_y||hwagae_d,where:allBr.filter(function(b){return b===hwagae_y||b===hwagae_d})},
+    yangin:{val:yangin,where:allBr.filter(function(b){return b===yangin})}
+  };
+}
+
+// 대운
+function getDaeunStartAge(y,m,d,gender,yearStem){var yang=STEMS.indexOf(yearStem)%2===0;var fwd=(yang&&gender==='M')||(!yang&&gender==='F');var jd=[6,4,6,5,6,6,7,7,8,8,7,7];var dim=[31,28,31,30,31,30,31,31,30,31,30,31];var cur=jd[m-1];var days;if(fwd){days=(d<cur)?(cur-d):(dim[m-1]-d+jd[m%12]);}else{days=(d>=cur)?(d-cur):(dim[(m-2+12)%12]-jd[(m-2+12)%12]+d);}return{age:Math.max(1,Math.round(days/3)),fwd:fwd};}
+function calcDaeun(yp,mp,gender,y,m,d){var da=getDaeunStartAge(y,m,d,gender,yp.stem);var msi=STEMS.indexOf(mp.stem),mbi=BRANCHES.indexOf(mp.branch);var list=[];for(var i=0;i<9;i++){var si=da.fwd?(msi+i+1)%10:((msi-i-1+100)%10);var bi=da.fwd?(mbi+i+1)%12:((mbi-i-1+120)%12);list.push({age:da.age+i*10,end:da.age+(i+1)*10-1,stem:STEMS[si],branch:BRANCHES[bi]});}return{list:list,startAge:da.age,fwd:da.fwd};}
+function getYearFortune(y){return{stem:STEMS[(y-4+400)%10],branch:BRANCHES[(y-4+480)%12]};}
+
+// 년월별 12개월 산출 (월건)
+function getMonthlyFortune(year){
+  // 2026년 = 병오년 천간 시작점: 무토 → 인월 시작
+  var ys=getYearFortune(year).stem;
+  var yi=STEMS.indexOf(ys);
+  var startStem=((yi%5)*2+2)%10; // 인월 천간
+  var months=[];
+  // 절기 기준 월: 입춘(2/4)~ 시작, 인(2)~축(1)
+  var labels=['立春~驚蟄','驚蟄~淸明','淸明~立夏','立夏~芒種','芒種~小暑','小暑~立秋','立秋~白露','白露~寒露','寒露~立冬','立冬~大雪','大雪~小寒','小寒~立春'];
+  var dateRanges=['2/4~3/5','3/6~4/4','4/5~5/5','5/6~6/5','6/6~7/6','7/7~8/7','8/8~9/7','9/8~10/7','10/8~11/6','11/7~12/6','12/7~1/5','1/6~2/3'];
+  for(var i=0;i<12;i++){
+    var bi=(2+i)%12;
+    var si=(startStem+i)%10;
+    months.push({
+      idx:i,
+      label:labels[i],
+      dates:dateRanges[i],
+      stem:STEMS[si],
+      branch:BRANCHES[bi],
+      monthNum:(i+2)>12?(i+2-12):(i+2)
+    });
+  }
+  return months;
+}
+
+// ════════════════════════════════════════════════════════
+// 일간 12개 데이터 (풍부한 본성 설명)
+// ════════════════════════════════════════════════════════
+var ILGAN_DATA={
+  갑:{n:'갑목 甲木',em:'🌲',kw:'곧은 리더십',sub:'양목 / 큰 나무',
+    desc:'박쌤은 갑목, 곧게 뻗는 큰 나무의 결을 타고나셨습니다. 갑목은 봄날의 새싹이 하늘을 향해 솟구치듯, 멈추지 않는 성장의 의지를 품은 일간입니다. 한번 마음먹으면 끝까지 밀어붙이고, 옳다고 믿는 길은 굽히지 않습니다. 사람 앞에 서면 자연스럽게 중심이 되는 분, 그게 갑목 박쌤입니다.\n\n다만 갑목은 부러질 수는 있어도 휘어지진 않습니다. 윗사람이 누르면 부딪히고, 환경이 답답하면 떠나려 합니다. 박쌤이 답답한 순간을 만나면, 잠시 잎을 내려놓고 뿌리를 들여다보는 시간이 필요합니다. 갑목은 토양이 깊을수록 키가 큰 나무니까요.',
+    nature:'갑목은 양목으로 곧고 큰 나무를 상징합니다. 하늘을 향해 뻗는 소나무·참나무처럼 위엄 있고 강직하며, 남의 아래에 쉽게 굴복하지 않는 기개를 지닙니다.',
+    job:'교육·리더십·기획·언론·정치·환경·건설 분야',
+    wealth:'박쌤의 재물은 큰 나무가 자라듯 천천히, 그러나 단단하게 쌓입니다. 단기 투기는 갑목 결에 안 맞습니다. 토지·부동산처럼 시간이 깊어질수록 가치가 무거워지는 자산이 잘 맞습니다.',
+    love:'박쌤은 직설적이고 자신감 있는 사람에게 끌립니다. 천천히 신뢰를 쌓는 연애를 합니다. 한번 마음을 주면 끝까지 지키는 의리형. 화(火) 기운의 따뜻한 사람과 깊은 인연을 맺습니다.',
+    health:'간(肝)·담(膽)·근육·눈이 박쌤의 약한 부분입니다. 봄철 면역과 스트레스가 곧장 간으로 갑니다. 매일 짧은 스트레칭과 멀리 보는 시간이 필요합니다.'},
+  을:{n:'을목 乙木',em:'🌿',kw:'유연한 생명력',sub:'음목 / 풀·넝쿨',
+    desc:'박쌤은 을목, 풀과 넝쿨의 결을 타고나셨습니다. 을목은 바람에 흔들려도 꺾이지 않습니다. 부드럽지만 끝까지 살아남고, 어디에든 뿌리를 내립니다. 사람과 사람 사이를 잇는 능력이 탁월하시고, 감수성이 풍부해 예술적 재능이 빛납니다.\n\n을목은 환경에 따라 자기 모습을 바꾸는 유연함이 강점이지만, 결정을 미루는 그림자도 있습니다. 박쌤이 흔들릴 때는 본인의 뿌리가 어디 있는지를 다시 확인하면 됩니다. 부드러운 사람일수록 중심이 단단해야 멀리 갑니다.',
+    nature:'을목은 음목으로 풀·넝쿨·화초를 상징합니다. 어디에든 뿌리내리는 생존력과 아름다운 자태를 지닙니다.',
+    job:'예술·디자인·상담·교육·원예·서비스·패션·미용 분야',
+    wealth:'박쌤의 재물은 한꺼번에 들어오기보다, 여러 갈래로 흘러들어옵니다. 본업 외 부업·감성 콘텐츠 수익이 잘 맞습니다. 작은 수입이 모여 큰 자산이 됩니다.',
+    love:'박쌤은 따뜻하고 감성적인 사람에게 끌립니다. 빠르게 빠지지는 않지만, 한번 마음을 주면 깊고 오래 갑니다.',
+    health:'간·담과 신경계가 박쌤의 약한 부분입니다. 자연 속 산책이 가장 빠른 회복법입니다.'},
+  병:{n:'병화 丙火',em:'☀️',kw:'밝은 태양',sub:'양화 / 태양',
+    desc:'박쌤은 병화, 한낮의 태양을 닮은 일간이십니다. 어디에 가도 자연스럽게 중심이 되시고, 사람들이 박쌤 곁으로 모입니다. 표현이 솔직하고 빠르며, 마음에 두고 묻어두지 않습니다. 병화는 어둠을 밝히는 빛이라, 박쌤이 들어가는 자리는 분위기가 환해집니다.\n\n다만 태양은 늘 타오르기에 에너지 소진이 빠릅니다. 박쌤이 모두에게 빛을 나눠준 뒤, 본인을 회복할 시간이 반드시 필요합니다. 밤에는 잠깐 어두워질 줄도 알아야 다음 날 다시 떠오를 수 있습니다.',
+    nature:'병화는 양화로 태양을 상징합니다. 활달하고 공개적이며 숨김없는 성정을 지닙니다.',
+    job:'방송·연예·마케팅·강사·정치·소방·의료·사회복지 분야',
+    wealth:'박쌤의 재물은 사람과 네트워크에서 들어옵니다. 빠른 기회 포착과 사람을 통한 사업이 잘 맞습니다.',
+    love:'박쌤은 화려하고 에너지 넘치는 사람에게 끌립니다. 첫인상에 강하게 끌리고 적극적으로 다가갑니다.',
+    health:'심장·소장·혈관이 박쌤의 약한 부분입니다. 과로와 흥분을 줄이세요.'},
+  정:{n:'정화 丁火',em:'🕯️',kw:'섬세한 불꽃',sub:'음화 / 촛불·달빛',
+    desc:'박쌤은 정화, 어둠 속에서 오래 타는 촛불의 결입니다. 화려하게 빛나기보다 깊고 섬세하게 비춥니다. 박쌤은 사유가 깊고, 직관이 예리해 핵심을 한눈에 꿰뚫습니다. 예술·연구·상담의 자질이 풍부하고, 가까운 사람들에게 따뜻한 등불이 되어주는 분입니다.\n\n정화는 작은 불이라 환경에 흔들리기 쉽습니다. 박쌤이 지치는 순간은 사람들 속에서 너무 많이 빛났을 때입니다. 혼자만의 어둠과 침묵이 박쌤에게는 가장 큰 회복입니다.',
+    nature:'정화는 음화로 달빛·촛불·별빛을 상징합니다. 은은하지만 깊고 지속적인 빛입니다.',
+    job:'예술·철학·심리상담·IT·연구·미용·종교·교육 분야',
+    wealth:'박쌤의 재물은 전문성에서 나옵니다. 한 분야의 깊이가 곧 수입이 됩니다.',
+    love:'박쌤은 깊은 대화가 가능한 사람에게 끌립니다. 영혼이 통하는 만남을 합니다.',
+    health:'심장과 혈압, 눈 건강이 박쌤의 약한 부분입니다. 명상과 규칙적 수면이 가장 큰 약입니다.'},
+  무:{n:'무토 戊土',em:'⛰️',kw:'든든한 산',sub:'양토 / 산·대지',
+    desc:'박쌤은 무토, 큰 산과 너른 대지의 결입니다. 무토는 흔들리지 않습니다. 한번 약속한 것은 끝까지 지키시고, 위기에도 자리를 떠나지 않습니다. 박쌤 곁에는 사람들이 안심하고 기댈 수 있습니다.\n\n다만 산은 움직이기 어렵습니다. 박쌤은 변화에 둔하다는 평을 듣기 쉽고, 새 환경 적응이 느린 편입니다. 무겁다는 건 단점이 아닙니다. 박쌤의 무게가 곧 박쌤의 자산입니다.',
+    nature:'무토는 양토로 넓은 산·대지를 상징합니다. 모든 것을 받아들이는 포용력과 묵직한 안정감입니다.',
+    job:'부동산·건설·정치·의료·농업·경영·금융·행정 분야',
+    wealth:'박쌤의 재물은 부동산과 안정 자산에 강점이 있습니다. 장기 보유 전략이 가장 길합니다.',
+    love:'박쌤은 안정적이고 헌신적인 사람을 선호합니다. 속도는 느려도 깊고 진지합니다.',
+    health:'비위(소화기)·췌장이 박쌤의 약한 부분입니다.'},
+  기:{n:'기토 己土',em:'🌱',kw:'비옥한 땅',sub:'음토 / 옥토',
+    desc:'박쌤은 기토, 무엇이든 자라나게 하는 옥토의 결입니다. 기토는 기르는 손입니다. 사람을 가르치고, 보살피고, 자라게 하는 본능이 가장 강한 일간이십니다. 박쌤 곁을 거쳐 간 사람들은 모두 어딘가가 깊어집니다.\n\n다만 기토는 베푸는 데 익숙해 자기 한계를 잊습니다. 매주 한 번은 박쌤 자신을 위한 시간을 따로 두세요. 좋은 흙도 가끔 휴경(休耕)이 필요합니다.',
+    nature:'기토는 음토로 텃밭·논밭·습지를 상징합니다. 유연하면서도 모든 생명을 키우는 생산성입니다.',
+    job:'교육·복지·의료·영양·컨설팅·행정·원예·식품 분야',
+    wealth:'박쌤의 재물은 꾸준한 저축과 배당 수익이 길합니다.',
+    love:'박쌤은 배려심 깊고 가정적인 사람을 선호합니다.',
+    health:'소화기·췌장·당 수치가 박쌤의 약한 부분입니다.'},
+  경:{n:'경금 庚金',em:'⚔️',kw:'강인한 쇠',sub:'양금 / 강철',
+    desc:'박쌤은 경금, 단단한 쇠와 바위의 결입니다. 한번 결심하면 끝까지 가시고, 시작한 일을 반드시 끝맺습니다. 원칙이 분명해 박쌤 곁에 있으면 안심이 됩니다. 의리가 깊고 거짓을 못 견디는 분입니다.\n\n다만 경금은 표현이 짧습니다. 마음은 깊은데 말로 옮기는 데 서툴러 가까운 사람이 오해할 때가 있습니다. 박쌤이 사랑하는 사람일수록 더 자주, 더 따뜻하게 말로 표현해 주세요.',
+    nature:'경금은 양금으로 바위·원광석·무기를 상징합니다.',
+    job:'법조·군경·금융·기계·제조·감사·스포츠 분야',
+    wealth:'박쌤의 재물은 안정적 금융 투자와 부동산이 길합니다.',
+    love:'박쌤은 강하고 독립적인 사람에게 끌립니다.',
+    health:'폐·대장·피부·호흡기가 박쌤의 약한 부분입니다.'},
+  신:{n:'신금 辛金',em:'💎',kw:'빛나는 보석',sub:'음금 / 보석',
+    desc:'박쌤은 신금, 정제된 보석과 칼날의 결입니다. 디테일을 잡아내는 눈이 남다르시고, 한번 정한 기준은 흔들지 않습니다. 자존감이 단단해 외부 평가에 쉽게 흔들리지 않는 분입니다.\n\n다만 신금은 완벽주의의 그림자가 깁니다. 박쌤이 지치는 순간은 본인이 만든 기준을 본인이 못 따라갈 때입니다. 완벽보다 완성이 먼저입니다.',
+    nature:'신금은 음금으로 보석·칼날·장신구를 상징합니다.',
+    job:'패션·미용·의료·법조·금융·정밀공학·예술 분야',
+    wealth:'박쌤의 재물은 전문직 수익과 가치 투자가 길합니다.',
+    love:'박쌤은 세련되고 품격 있는 사람을 선호합니다.',
+    health:'폐·피부·호흡기가 박쌤의 약한 부분입니다.'},
+  임:{n:'임수 壬水',em:'🌊',kw:'큰 강의 흐름',sub:'양수 / 큰 강',
+    desc:'박쌤은 임수, 큰 강과 바다의 결입니다. 시야가 넓고 전략적이시며, 다양한 분야를 가로지르는 호기심을 타고나셨습니다. 물처럼 어디든 길을 찾아 흐르는 분이라, 막다른 골목도 박쌤에게는 잠시 우회로일 뿐입니다.\n\n다만 임수는 한 곳에 머물기 어렵습니다. 박쌤은 깊이는 있는데 한 분야를 끝까지 파는 게 부담스러울 때가 있습니다.',
+    nature:'임수는 양수로 큰 강·바다·폭포를 상징합니다.',
+    job:'무역·연구·IT·철학·여행·기획·외교·금융 분야',
+    wealth:'박쌤의 재물은 다양한 수입원과 무역·해외 투자가 길합니다.',
+    love:'박쌤은 지적이고 대화가 통하는 사람을 선호합니다.',
+    health:'신장·방광·허리·뼈가 박쌤의 약한 부분입니다.'},
+  계:{n:'계수 癸水',em:'🌧️',kw:'맑은 샘물',sub:'음수 / 이슬비',
+    desc:'박쌤은 계수, 조용히 스미는 샘물과 이슬비의 결입니다. 직관과 영감이 깊으시고, 보이지 않는 곳에서 큰 영향을 만들어내는 안목이 있습니다. 사람의 표정 하나, 분위기 하나에서 본질을 읽어내는 분입니다.\n\n다만 계수는 자기 표현이 약해 묻히기 쉽습니다. 박쌤이 가진 통찰을 세상에 가시화하는 훈련이 필요합니다.',
+    nature:'계수는 음수로 이슬비·샘물·안개를 상징합니다.',
+    job:'예술·연구·심리·의료·종교·문학·철학·교육 분야',
+    wealth:'박쌤의 재물은 감성 콘텐츠와 전문성 기반 수익이 길합니다.',
+    love:'박쌤은 영적으로 깊이 연결되는 사람을 선호합니다.',
+    health:'신장·방광·냉증이 박쌤의 약한 부분입니다.'}
+};
+
+var STAR_DESC={
+  비견:'독립·자존·동료. 자기 정체성이 뚜렷합니다',
+  겁재:'경쟁·도전·승부욕. 추진력이 강합니다',
+  식신:'표현·먹복·돌봄. 부드러운 창의력입니다',
+  상관:'혁신·표현·자유. 틀을 깨는 창의력입니다',
+  편재:'활동·기회·사업감각. 큰 거래를 봅니다',
+  정재:'안정·성실·실속. 차곡차곡 쌓습니다',
+  편관:'권위·강한 추진. 강력한 리더십입니다',
+  정관:'명예·질서·안정 직장. 사회적 신뢰입니다',
+  편인:'직관·연구·종교. 독창적 사유입니다',
+  정인:'학문·교육·문서. 배움의 운입니다'
+};
+
+// ════════════════════════════════════════════════════════
+// 타로 78장 전체 데이터
+// 메이저 22장 + 마이너 56장(완드·컵·소드·펜타클 × 14)
+// ════════════════════════════════════════════════════════
+var TAROT=[
+  // ─── 메이저 아르카나 22장 ───
+  {n:'바보',e:'The Fool',num:0,sym:'🃏',type:'major',
+    up:'새로운 시작·순수·자유로운 영혼. 두려움 없는 도약',
+    rev:'무모함·준비 부족·위험한 결정',
+    msg:'박쌤, 지금은 새 길에 발을 내딛을 때입니다. 가벼운 마음으로 시작하세요.',
+    revMsg:'박쌤, 너무 서두르고 있지 않은지 한 발 멈춰보세요. 준비가 더 필요할 수 있습니다.'},
+  {n:'마법사',e:'The Magician',num:1,sym:'🎩',type:'major',
+    up:'창의력·의지·실행력. 모든 도구가 박쌤 손에 있음',
+    rev:'재능 낭비·기만·자신감 부족',
+    msg:'박쌤은 지금 마음먹은 일을 이룰 모든 도구를 가지고 있습니다. 망설이지 마세요.',
+    revMsg:'박쌤, 본인이 가진 능력을 과소평가하고 있습니다. 다시 자신을 믿으세요.'},
+  {n:'여사제',e:'The High Priestess',num:2,sym:'🌙',type:'major',
+    up:'직관·내면의 지혜·비밀·신비. 마음의 소리를 들으세요',
+    rev:'직관 무시·표면적 판단·숨겨진 정보',
+    msg:'박쌤의 직감이 정답을 알고 있습니다. 조용히 자신의 안을 들여다보세요.',
+    revMsg:'박쌤, 머리로만 판단하지 말고 마음의 신호를 다시 보세요.'},
+  {n:'여황제',e:'The Empress',num:3,sym:'👑',type:'major',
+    up:'풍요·창조·모성·아름다움. 결실의 시기',
+    rev:'창의력 막힘·과보호·의존',
+    msg:'박쌤에게 풍요로운 결실이 다가오고 있습니다. 마음을 열고 받아들이세요.',
+    revMsg:'박쌤, 너무 많이 베풀고 있지는 않나요? 본인 자리도 챙기셔야 합니다.'},
+  {n:'황제',e:'The Emperor',num:4,sym:'⚜️',type:'major',
+    up:'권위·구조·안정·리더십. 박쌤이 책임자가 되는 때',
+    rev:'독단·통제 욕구·완고함',
+    msg:'박쌤은 지금 결단을 내릴 자리입니다. 책임감 있게 이끌어가세요.',
+    revMsg:'박쌤, 너무 통제하려 들면 사람들이 멀어집니다. 유연함을 챙기세요.'},
+  {n:'교황',e:'The Hierophant',num:5,sym:'⛪',type:'major',
+    up:'전통·교육·멘토·신념. 좋은 스승과의 인연',
+    rev:'관습 거부·자기 길·반항',
+    msg:'박쌤, 좋은 어른이나 스승의 조언을 들으세요. 정도(正道)가 답입니다.',
+    revMsg:'박쌤은 본인만의 길을 가야 할 때입니다. 정형화된 틀이 답답하실 거예요.'},
+  {n:'연인',e:'The Lovers',num:6,sym:'💕',type:'major',
+    up:'사랑·조화·선택. 운명적 만남 또는 중요한 결정',
+    rev:'갈등·잘못된 선택·관계 불화',
+    msg:'박쌤에게 사랑 또는 중요한 선택이 다가옵니다. 가슴이 시키는 쪽을 따르세요.',
+    revMsg:'박쌤, 지금 관계나 선택에 균열이 보입니다. 솔직한 대화가 필요합니다.'},
+  {n:'전차',e:'The Chariot',num:7,sym:'🛡️',type:'major',
+    up:'승리·추진력·의지·정복. 박쌤이 원하는 방향으로 직진',
+    rev:'방향 상실·자제력 부족·실패',
+    msg:'박쌤, 강한 의지로 밀어붙이면 승리합니다. 멈추지 마세요.',
+    revMsg:'박쌤, 지금 너무 많은 방향을 동시에 향하고 있습니다. 하나에 집중하세요.'},
+  {n:'힘',e:'Strength',num:8,sym:'🦁',type:'major',
+    up:'내면의 힘·인내·용기·자제. 부드러운 강함',
+    rev:'자신감 부족·약함·분노',
+    msg:'박쌤, 부드럽지만 단단한 힘이 박쌤 안에 있습니다. 인내로 이깁니다.',
+    revMsg:'박쌤, 자신을 너무 의심하고 있어요. 박쌤은 생각보다 강한 사람입니다.'},
+  {n:'은둔자',e:'The Hermit',num:9,sym:'🕯️',type:'major',
+    up:'성찰·고독·내면 탐구·지혜. 조용한 시기',
+    rev:'고립·외로움·도피',
+    msg:'박쌤, 지금은 조용히 자신과 마주할 시간입니다. 답은 안에 있습니다.',
+    revMsg:'박쌤, 너무 혼자만의 시간이 길어지고 있어요. 사람과 다시 연결될 때입니다.'},
+  {n:'운명의 수레바퀴',e:'Wheel of Fortune',num:10,sym:'🎡',type:'major',
+    up:'전환점·운명·변화의 기회. 흐름이 바뀌는 순간',
+    rev:'운 막힘·악순환·통제 불가',
+    msg:'박쌤의 인생에서 큰 전환점이 다가옵니다. 흐름에 올라타세요.',
+    revMsg:'박쌤, 지금은 흐름이 잠시 막힌 듯해도 곧 풀립니다. 조급해하지 마세요.'},
+  {n:'정의',e:'Justice',num:11,sym:'⚖️',type:'major',
+    up:'공정·균형·진실·결단. 정직한 결과',
+    rev:'불공정·편견·책임 회피',
+    msg:'박쌤이 정직하게 행동해 온 결과가 곧 모습을 드러냅니다.',
+    revMsg:'박쌤, 어느 한쪽으로 치우치고 있지 않은지 점검하세요.'},
+  {n:'매달린 사람',e:'The Hanged Man',num:12,sym:'🙃',type:'major',
+    up:'기다림·관점 전환·희생·항복. 다른 각도로 보기',
+    rev:'정체·헛된 희생·고집',
+    msg:'박쌤, 지금은 거꾸로 매달려 세상을 보는 시기입니다. 다른 각도가 답입니다.',
+    revMsg:'박쌤, 무의미한 기다림은 그만두세요. 결단할 때입니다.'},
+  {n:'죽음',e:'Death',num:13,sym:'💀',type:'major',
+    up:'변화·끝과 시작·해방·재생. 무서운 카드 아닙니다',
+    rev:'변화 거부·정체·집착',
+    msg:'박쌤, 옛것이 떠나가야 새것이 들어옵니다. 두려워 마시고 놓아주세요.',
+    revMsg:'박쌤, 지나간 일에 매달리고 있어요. 이제는 보내야 할 때입니다.'},
+  {n:'절제',e:'Temperance',num:14,sym:'🌈',type:'major',
+    up:'균형·조화·인내·통합. 박쌤의 양극단이 만나는 자리',
+    rev:'불균형·과도함·조급함',
+    msg:'박쌤, 지금은 양쪽을 조화시키는 시기입니다. 천천히 섞으세요.',
+    revMsg:'박쌤, 한쪽으로 너무 기울었습니다. 다시 중심을 잡으세요.'},
+  {n:'악마',e:'The Devil',num:15,sym:'😈',type:'major',
+    up:'욕망·집착·중독·물질주의. 자신의 그림자 직면',
+    rev:'해방·각성·집착에서 벗어남',
+    msg:'박쌤, 무엇에 묶여 있나요? 그 사슬은 사실 박쌤이 풀 수 있습니다.',
+    revMsg:'박쌤, 오래된 집착에서 벗어나는 시기입니다. 자유가 다가옵니다.'},
+  {n:'탑',e:'The Tower',num:16,sym:'🗼',type:'major',
+    up:'급격한 변화·붕괴·각성. 거짓된 구조의 파괴',
+    rev:'재앙 회피·점진적 변화·교훈',
+    msg:'박쌤, 무너질 것은 무너져야 진짜가 남습니다. 받아들이세요.',
+    revMsg:'박쌤, 큰 위기는 피했습니다. 다만 점검할 게 남았어요.'},
+  {n:'별',e:'The Star',num:17,sym:'⭐',type:'major',
+    up:'희망·영감·치유·평화. 박쌤에게 다가오는 가장 따뜻한 카드',
+    rev:'희망 상실·자신감 부족·우울',
+    msg:'박쌤, 어두운 터널 끝에 별이 떠 있습니다. 희망을 놓지 마세요.',
+    revMsg:'박쌤, 잠시 빛을 잃었을 뿐 별은 사라지지 않았습니다.'},
+  {n:'달',e:'The Moon',num:18,sym:'🌙',type:'major',
+    up:'환상·직관·불안·숨겨진 진실. 안개 속을 걷는 중',
+    rev:'진실 드러남·혼란 해소',
+    msg:'박쌤, 지금 보이는 것이 전부가 아닙니다. 직관을 믿으세요.',
+    revMsg:'박쌤, 안개가 걷히고 있습니다. 진실이 곧 드러납니다.'},
+  {n:'태양',e:'The Sun',num:19,sym:'☀️',type:'major',
+    up:'성공·기쁨·활력·풍요. 가장 길한 카드',
+    rev:'일시적 좌절·과한 자신감·지연',
+    msg:'박쌤, 햇빛처럼 환한 시기가 옵니다. 마음껏 빛나세요.',
+    revMsg:'박쌤, 잠시 구름이 끼었지만 곧 해가 다시 뜹니다.'},
+  {n:'심판',e:'Judgement',num:20,sym:'📯',type:'major',
+    up:'각성·재생·소명·과거 청산. 새 인생의 부름',
+    rev:'자기 의심·과거에 묶임·기회 놓침',
+    msg:'박쌤, 인생의 새 챕터가 박쌤을 부르고 있습니다. 응답하세요.',
+    revMsg:'박쌤, 과거의 자신에게 너무 엄격하지 마세요. 용서가 먼저입니다.'},
+  {n:'세계',e:'The World',num:21,sym:'🌍',type:'major',
+    up:'완성·통합·성취·여행. 박쌤의 한 사이클이 마무리됨',
+    rev:'미완성·지연·정체',
+    msg:'박쌤, 오랜 여정이 결실을 맺습니다. 자랑스러워하세요.',
+    revMsg:'박쌤, 마지막 한 발이 남았습니다. 멈추지 마세요.'},
+
+  // ─── 마이너 아르카나 56장 ───
+  // 완드 (Wands, 🔥火) 14장 - 열정·창조·행동
+  {n:'완드 에이스',e:'Ace of Wands',num:22,sym:'🔥',type:'wand',
+    up:'영감·새로운 시작·열정의 불꽃',rev:'동기 부족·지연·창의력 막힘',
+    msg:'박쌤, 가슴이 뜨거워지는 새 일이 시작됩니다.',revMsg:'박쌤, 동력이 약합니다. 무엇이 박쌤을 막고 있나요?'},
+  {n:'완드 2',e:'Two of Wands',num:23,sym:'🔥',type:'wand',
+    up:'계획·미래 비전·결정',rev:'두려움·계획 부족',
+    msg:'박쌤, 큰 그림을 그릴 시기입니다.',revMsg:'박쌤, 결정을 미루지 마세요.'},
+  {n:'완드 3',e:'Three of Wands',num:24,sym:'🔥',type:'wand',
+    up:'확장·해외·기다림의 결실',rev:'지연·계획 실패',
+    msg:'박쌤, 시야를 넓히세요. 해외 또는 새로운 영역이 열립니다.',revMsg:'박쌤, 더 큰 시야가 필요합니다.'},
+  {n:'완드 4',e:'Four of Wands',num:25,sym:'🔥',type:'wand',
+    up:'축하·안정·가정·결혼',rev:'갈등·불안정',
+    msg:'박쌤, 작은 축하의 자리가 곧 옵니다.',revMsg:'박쌤, 가정과 토대를 다시 점검하세요.'},
+  {n:'완드 5',e:'Five of Wands',num:26,sym:'🔥',type:'wand',
+    up:'경쟁·갈등·도전',rev:'갈등 해소·회피',
+    msg:'박쌤, 경쟁이 박쌤을 더 단단하게 만듭니다.',revMsg:'박쌤, 불필요한 싸움은 피하세요.'},
+  {n:'완드 6',e:'Six of Wands',num:27,sym:'🔥',type:'wand',
+    up:'승리·인정·성공',rev:'실패·인정받지 못함',
+    msg:'박쌤, 노력이 인정받는 시기입니다. 자신감 가지세요.',revMsg:'박쌤, 결과가 더디지만 곧 옵니다.'},
+  {n:'완드 7',e:'Seven of Wands',num:28,sym:'🔥',type:'wand',
+    up:'방어·도전 극복·용기',rev:'압도됨·포기',
+    msg:'박쌤, 자기 자리를 지킬 때입니다.',revMsg:'박쌤, 잠시 후퇴도 전략입니다.'},
+  {n:'완드 8',e:'Eight of Wands',num:29,sym:'🔥',type:'wand',
+    up:'빠른 진행·소식·이동',rev:'지연·정체',
+    msg:'박쌤, 좋은 소식이 빠르게 옵니다.',revMsg:'박쌤, 조금만 더 기다리세요.'},
+  {n:'완드 9',e:'Nine of Wands',num:30,sym:'🔥',type:'wand',
+    up:'인내·끈기·마지막 시험',rev:'소진·포기 직전',
+    msg:'박쌤, 거의 다 왔습니다. 한 번만 더.',revMsg:'박쌤, 충분히 잘했어요. 휴식이 필요합니다.'},
+  {n:'완드 10',e:'Ten of Wands',num:31,sym:'🔥',type:'wand',
+    up:'책임·짐·과부하',rev:'짐 내려놓음·해방',
+    msg:'박쌤, 짐이 무거우신가요? 도움을 청하세요.',revMsg:'박쌤, 이제 내려놓을 때입니다.'},
+  {n:'완드 페이지',e:'Page of Wands',num:32,sym:'🔥',type:'wand',
+    up:'새로운 영감·열정적 메시지·젊은 에너지',rev:'미숙·산만함',
+    msg:'박쌤, 호기심을 따라가세요. 새 기회의 시작입니다.',revMsg:'박쌤, 너무 많은 것에 욕심내지 마세요.'},
+  {n:'완드 나이트',e:'Knight of Wands',num:33,sym:'🔥',type:'wand',
+    up:'행동·열정·모험',rev:'무모함·서두름',
+    msg:'박쌤, 지금이 움직일 때입니다.',revMsg:'박쌤, 한 박자만 늦추세요.'},
+  {n:'완드 퀸',e:'Queen of Wands',num:34,sym:'🔥',type:'wand',
+    up:'카리스마·자신감·창조력',rev:'질투·소진',
+    msg:'박쌤, 박쌤의 매력이 빛나는 시기입니다.',revMsg:'박쌤, 자신을 다시 돌보세요.'},
+  {n:'완드 킹',e:'King of Wands',num:35,sym:'🔥',type:'wand',
+    up:'리더십·비전·결단',rev:'독단·충동',
+    msg:'박쌤, 박쌤이 리더가 될 자리에 있습니다.',revMsg:'박쌤, 조언을 들으세요.'},
+
+  // 컵 (Cups, 💧水) 14장 - 감정·관계·직관
+  {n:'컵 에이스',e:'Ace of Cups',num:36,sym:'💧',type:'cup',
+    up:'새로운 사랑·감정의 시작·치유',rev:'감정 막힘·실연',
+    msg:'박쌤, 마음이 다시 열리는 시간입니다.',revMsg:'박쌤, 닫힌 마음을 천천히 풀어가세요.'},
+  {n:'컵 2',e:'Two of Cups',num:37,sym:'💧',type:'cup',
+    up:'사랑·파트너십·조화',rev:'관계 불화·이별',
+    msg:'박쌤에게 깊은 인연이 다가옵니다.',revMsg:'박쌤, 관계의 균형을 다시 보세요.'},
+  {n:'컵 3',e:'Three of Cups',num:38,sym:'💧',type:'cup',
+    up:'우정·축하·공동체',rev:'고립·과음·소외',
+    msg:'박쌤, 사람들과 어울리는 자리가 길운입니다.',revMsg:'박쌤, 깊지 않은 관계는 정리하세요.'},
+  {n:'컵 4',e:'Four of Cups',num:39,sym:'💧',type:'cup',
+    up:'무관심·권태·재평가',rev:'새로운 관심·기회 발견',
+    msg:'박쌤, 지금 보이지 않는 좋은 것이 옆에 있습니다.',revMsg:'박쌤, 새로운 관심사가 찾아옵니다.'},
+  {n:'컵 5',e:'Five of Cups',num:40,sym:'💧',type:'cup',
+    up:'후회·상실·슬픔',rev:'회복·용서·새 시작',
+    msg:'박쌤, 잃은 것보다 남은 것을 보세요.',revMsg:'박쌤, 회복의 시간이 다가옵니다.'},
+  {n:'컵 6',e:'Six of Cups',num:41,sym:'💧',type:'cup',
+    up:'추억·향수·옛 인연',rev:'과거에 묶임·성숙',
+    msg:'박쌤, 옛 인연이 다시 찾아옵니다.',revMsg:'박쌤, 과거에서 한 발 나오세요.'},
+  {n:'컵 7',e:'Seven of Cups',num:42,sym:'💧',type:'cup',
+    up:'선택지·환상·고민',rev:'결단·환상 깨짐',
+    msg:'박쌤, 선택지가 많을 때일수록 가슴 깊은 곳을 따르세요.',revMsg:'박쌤, 현실을 직시할 때입니다.'},
+  {n:'컵 8',e:'Eight of Cups',num:43,sym:'💧',type:'cup',
+    up:'떠남·새 길·내면 여정',rev:'머무름·미련',
+    msg:'박쌤, 익숙한 것을 떠날 용기가 필요합니다.',revMsg:'박쌤, 떠나야 할지 머물러야 할지 다시 생각해보세요.'},
+  {n:'컵 9',e:'Nine of Cups',num:44,sym:'💧',type:'cup',
+    up:'소원 성취·만족·풍요 (Wish Card)',rev:'표면적 만족·자만',
+    msg:'박쌤, 박쌤의 소원이 이루어집니다. 가장 길한 카드입니다.',revMsg:'박쌤, 진짜 원하는 것이 무엇인지 다시 보세요.'},
+  {n:'컵 10',e:'Ten of Cups',num:45,sym:'💧',type:'cup',
+    up:'가족 행복·완성된 사랑·평화',rev:'가정 불화·관계 균열',
+    msg:'박쌤, 가족과 사랑하는 사람들과 깊은 행복을 누리는 시기입니다.',revMsg:'박쌤, 가까운 사람과의 관계를 다시 보세요.'},
+  {n:'컵 페이지',e:'Page of Cups',num:46,sym:'💧',type:'cup',
+    up:'감수성·메시지·창의적 영감',rev:'감정적 미숙·예민',
+    msg:'박쌤, 따뜻한 소식이 옵니다.',revMsg:'박쌤, 감정을 조절하세요.'},
+  {n:'컵 나이트',e:'Knight of Cups',num:47,sym:'💧',type:'cup',
+    up:'로맨스·제안·낭만',rev:'기만·변덕',
+    msg:'박쌤, 낭만적인 제안이 다가옵니다.',revMsg:'박쌤, 달콤한 말에 너무 흔들리지 마세요.'},
+  {n:'컵 퀸',e:'Queen of Cups',num:48,sym:'💧',type:'cup',
+    up:'공감·직관·정서적 성숙',rev:'감정 의존·휘둘림',
+    msg:'박쌤, 박쌤의 공감 능력이 가장 큰 힘입니다.',revMsg:'박쌤, 본인 감정도 챙기세요.'},
+  {n:'컵 킹',e:'King of Cups',num:49,sym:'💧',type:'cup',
+    up:'감정의 마스터·지혜·균형',rev:'감정 억압·조작',
+    msg:'박쌤, 감정과 이성의 균형이 박쌤의 강점입니다.',revMsg:'박쌤, 본인 진짜 감정을 외면하지 마세요.'},
+
+  // 소드 (Swords, ⚔️風) 14장 - 사고·갈등·결단
+  {n:'소드 에이스',e:'Ace of Swords',num:50,sym:'⚔️',type:'sword',
+    up:'명료한 판단·진실·돌파',rev:'혼란·잘못된 결정',
+    msg:'박쌤, 진실이 박쌤 손에 있습니다.',revMsg:'박쌤, 다시 사실을 확인하세요.'},
+  {n:'소드 2',e:'Two of Swords',num:51,sym:'⚔️',type:'sword',
+    up:'결정 보류·균형·진실 회피',rev:'결단·진실 직면',
+    msg:'박쌤, 결정을 잠시 미루는 것도 지혜입니다.',revMsg:'박쌤, 이제 결단할 때입니다.'},
+  {n:'소드 3',e:'Three of Swords',num:52,sym:'⚔️',type:'sword',
+    up:'상처·이별·슬픔',rev:'치유·회복·용서',
+    msg:'박쌤, 아픈 일이 있어도 이 또한 지나갑니다.',revMsg:'박쌤, 회복의 길이 열립니다.'},
+  {n:'소드 4',e:'Four of Swords',num:53,sym:'⚔️',type:'sword',
+    up:'휴식·회복·명상',rev:'번아웃·강제 휴식',
+    msg:'박쌤, 잠시 멈춰 쉬어야 다시 나아갈 수 있습니다.',revMsg:'박쌤, 몸이 신호를 보내고 있습니다.'},
+  {n:'소드 5',e:'Five of Swords',num:54,sym:'⚔️',type:'sword',
+    up:'갈등·승리의 그늘·논쟁',rev:'화해·후회',
+    msg:'박쌤, 이기는 것이 전부가 아닙니다.',revMsg:'박쌤, 화해의 손을 내미세요.'},
+  {n:'소드 6',e:'Six of Swords',num:55,sym:'⚔️',type:'sword',
+    up:'전환·이동·평온',rev:'과거에 발 묶임',
+    msg:'박쌤, 더 평온한 곳으로 옮겨갈 시기입니다.',revMsg:'박쌤, 떠나는 결심이 늦어지고 있습니다.'},
+  {n:'소드 7',e:'Seven of Swords',num:56,sym:'⚔️',type:'sword',
+    up:'전략·은밀함·기만 주의',rev:'정직·자백',
+    msg:'박쌤, 신중하게 움직이세요.',revMsg:'박쌤, 진실을 드러낼 때입니다.'},
+  {n:'소드 8',e:'Eight of Swords',num:57,sym:'⚔️',type:'sword',
+    up:'속박·자기 한계·무력감',rev:'해방·자각',
+    msg:'박쌤, 박쌤을 묶는 것은 사실 박쌤 마음입니다.',revMsg:'박쌤, 자유로워질 때입니다.'},
+  {n:'소드 9',e:'Nine of Swords',num:58,sym:'⚔️',type:'sword',
+    up:'불안·악몽·걱정',rev:'걱정 해소·희망',
+    msg:'박쌤, 걱정의 90%는 일어나지 않습니다.',revMsg:'박쌤, 어두운 밤이 끝나고 있습니다.'},
+  {n:'소드 10',e:'Ten of Swords',num:59,sym:'⚔️',type:'sword',
+    up:'끝·바닥·재시작 준비',rev:'회복·재기',
+    msg:'박쌤, 바닥을 쳤으니 이제 올라갈 일만 남았습니다.',revMsg:'박쌤, 회복이 시작됩니다.'},
+  {n:'소드 페이지',e:'Page of Swords',num:60,sym:'⚔️',type:'sword',
+    up:'호기심·새 정보·민첩성',rev:'험담·산만함',
+    msg:'박쌤, 새로운 정보가 길이 됩니다.',revMsg:'박쌤, 말조심이 필요합니다.'},
+  {n:'소드 나이트',e:'Knight of Swords',num:61,sym:'⚔️',type:'sword',
+    up:'행동·돌파·결단',rev:'무모함·공격성',
+    msg:'박쌤, 망설임 없이 돌파하세요.',revMsg:'박쌤, 한 박자 늦추세요.'},
+  {n:'소드 퀸',e:'Queen of Swords',num:62,sym:'⚔️',type:'sword',
+    up:'명석함·독립·솔직함',rev:'냉정함·고립',
+    msg:'박쌤, 박쌤의 분명한 판단이 답입니다.',revMsg:'박쌤, 따뜻함도 챙기세요.'},
+  {n:'소드 킹',e:'King of Swords',num:63,sym:'⚔️',type:'sword',
+    up:'지혜·권위·논리',rev:'독선·냉혹',
+    msg:'박쌤, 이성과 원칙으로 결정하세요.',revMsg:'박쌤, 사람의 마음도 살피세요.'},
+
+  // 펜타클 (Pentacles, 🪙地) 14장 - 물질·재물·현실
+  {n:'펜타클 에이스',e:'Ace of Pentacles',num:64,sym:'🪙',type:'penta',
+    up:'재물의 시작·새 기회·풍요',rev:'기회 놓침·재정 불안',
+    msg:'박쌤, 재물의 새 씨앗이 심어집니다.',revMsg:'박쌤, 기회를 흘려보내지 마세요.'},
+  {n:'펜타클 2',e:'Two of Pentacles',num:65,sym:'🪙',type:'penta',
+    up:'균형·다재다능·관리',rev:'과부하·균형 상실',
+    msg:'박쌤, 여러 일을 잘 조율하고 있습니다.',revMsg:'박쌤, 하나는 줄이세요.'},
+  {n:'펜타클 3',e:'Three of Pentacles',num:66,sym:'🪙',type:'penta',
+    up:'협력·전문성·성과',rev:'협력 부족·실력 미달',
+    msg:'박쌤, 좋은 팀과 함께 큰 성과를 만듭니다.',revMsg:'박쌤, 혼자보다 협력이 필요합니다.'},
+  {n:'펜타클 4',e:'Four of Pentacles',num:67,sym:'🪙',type:'penta',
+    up:'저축·안정·소유',rev:'인색·집착',
+    msg:'박쌤, 안정적인 재정 관리가 길합니다.',revMsg:'박쌤, 너무 움켜쥐면 흐름이 막힙니다.'},
+  {n:'펜타클 5',e:'Five of Pentacles',num:68,sym:'🪙',type:'penta',
+    up:'경제적 어려움·고립감',rev:'회복·도움',
+    msg:'박쌤, 어려움이 있어도 따뜻한 곳이 가까이 있습니다.',revMsg:'박쌤, 회복의 시기가 옵니다.'},
+  {n:'펜타클 6',e:'Six of Pentacles',num:69,sym:'🪙',type:'penta',
+    up:'관대함·나눔·균형',rev:'불공정·일방적',
+    msg:'박쌤, 주고받는 균형이 맞을 때입니다.',revMsg:'박쌤, 한쪽이 너무 베풀고 있어요.'},
+  {n:'펜타클 7',e:'Seven of Pentacles',num:70,sym:'🪙',type:'penta',
+    up:'인내·장기 투자·평가',rev:'조급함·낮은 수익',
+    msg:'박쌤, 노력의 열매가 곧 맺힙니다. 조금만 더.',revMsg:'박쌤, 전략을 다시 짜야 할 때입니다.'},
+  {n:'펜타클 8',e:'Eight of Pentacles',num:71,sym:'🪙',type:'penta',
+    up:'장인 정신·기술 연마·집중',rev:'완벽주의·정체',
+    msg:'박쌤, 한 분야를 깊이 파는 시기입니다.',revMsg:'박쌤, 완벽보다 완성이 먼저예요.'},
+  {n:'펜타클 9',e:'Nine of Pentacles',num:72,sym:'🪙',type:'penta',
+    up:'자수성가·독립·풍요',rev:'재정 불안·의존',
+    msg:'박쌤, 자기 노력으로 누리는 풍요가 가장 단단합니다.',revMsg:'박쌤, 안정 자산을 다시 점검하세요.'},
+  {n:'펜타클 10',e:'Ten of Pentacles',num:73,sym:'🪙',type:'penta',
+    up:'가문의 풍요·유산·완성',rev:'재정 분쟁·가족 문제',
+    msg:'박쌤, 평생의 안정과 풍요가 박쌤 곁에 있습니다.',revMsg:'박쌤, 가족과의 재정 문제를 잘 정리하세요.'},
+  {n:'펜타클 페이지',e:'Page of Pentacles',num:74,sym:'🪙',type:'penta',
+    up:'학습·새 기회·실용성',rev:'기회 놓침·게으름',
+    msg:'박쌤, 새 배움이 곧 재물로 이어집니다.',revMsg:'박쌤, 시작이 늦어지고 있어요.'},
+  {n:'펜타클 나이트',e:'Knight of Pentacles',num:75,sym:'🪙',type:'penta',
+    up:'성실·꾸준함·신뢰',rev:'정체·고집',
+    msg:'박쌤, 묵묵한 성실이 박쌤의 최대 무기입니다.',revMsg:'박쌤, 변화가 필요한 시기입니다.'},
+  {n:'펜타클 퀸',e:'Queen of Pentacles',num:76,sym:'🪙',type:'penta',
+    up:'풍요·실용·돌봄',rev:'물질 의존·과부하',
+    msg:'박쌤, 박쌤은 가족과 일을 모두 잘 챙기는 능력자입니다.',revMsg:'박쌤, 자신을 위한 시간도 챙기세요.'},
+  {n:'펜타클 킹',e:'King of Pentacles',num:77,sym:'🪙',type:'penta',
+    up:'재정적 성공·안정·관대',rev:'탐욕·완고함',
+    msg:'박쌤, 박쌤은 재물과 안정의 마스터가 되고 있습니다.',revMsg:'박쌤, 베푸는 마음을 잃지 마세요.'}
+];
+
+// ════════════════════════════════════════════════════════
+// 수비학 (Numerology) 데이터
+// ════════════════════════════════════════════════════════
+var NUMERO_MEANING={
+  1:{kw:'리더·개척',desc:'박쌤은 1의 에너지 - 시작과 리더십의 사람입니다. 누가 정해준 길보다 본인이 만든 길에서 빛납니다. 독립심이 강하고, 결심한 일은 누구보다 먼저 움직입니다. 다만 혼자 가려는 성향이 강해 협력이 약점이 됩니다. 사람들과 함께 가는 법을 배우면 더 멀리 갈 수 있습니다.'},
+  2:{kw:'조화·협력',desc:'박쌤은 2의 에너지 - 조화와 협력의 사람입니다. 사람과 사람 사이를 잇는 능력이 탁월하시고, 섬세한 감성으로 분위기를 만듭니다. 다만 결정을 미루는 그림자가 있습니다. 너무 남을 배려하다 본인 의견이 묻히기 쉬우니, 자신의 목소리를 내는 연습이 필요합니다.'},
+  3:{kw:'표현·창조',desc:'박쌤은 3의 에너지 - 표현과 창조의 사람입니다. 말과 글, 예술로 사람을 끌어모으는 매력이 있으십니다. 분위기를 밝게 만들고, 사람들이 박쌤 곁에서 즐거워합니다. 다만 산만함이 약점이라, 한 가지에 깊이 집중하는 훈련이 필요합니다.'},
+  4:{kw:'안정·기반',desc:'박쌤은 4의 에너지 - 안정과 기반의 사람입니다. 한 걸음씩 단단하게 쌓아 올리는 분이라, 시간이 갈수록 박쌤의 신뢰가 커집니다. 다만 변화에 둔하고 융통성이 부족할 때가 있어, 작은 유연함을 챙기시면 좋습니다.'},
+  5:{kw:'자유·변화',desc:'박쌤은 5의 에너지 - 자유와 변화의 사람입니다. 새로운 경험, 다양한 사람, 여행과 도전이 박쌤의 양식입니다. 한 곳에 묶이기 어려운 영혼이라, 다양성을 살릴 수 있는 일이 가장 잘 맞습니다. 다만 끝까지 마무리하는 힘을 키우는 게 과제입니다.'},
+  6:{kw:'사랑·책임',desc:'박쌤은 6의 에너지 - 사랑과 책임의 사람입니다. 가족과 가까운 사람을 돌보는 마음이 가장 깊으십니다. 다른 사람을 보살피는 일에 능하지만, 본인을 먼저 챙기는 연습이 필요합니다. 베풀기만 하면 박쌤이 비어버립니다.'},
+  7:{kw:'성찰·지혜',desc:'박쌤은 7의 에너지 - 성찰과 지혜의 사람입니다. 표면이 아닌 본질을 보는 눈, 보이지 않는 것을 읽는 직관이 가장 강한 자산입니다. 혼자만의 시간이 박쌤의 회복법입니다. 다만 너무 깊이 들어가면 고립될 수 있으니, 가끔 세상과 연결되는 통로를 두세요.'},
+  8:{kw:'성취·재물',desc:'박쌤은 8의 에너지 - 성취와 재물의 사람입니다. 큰 그림을 보고 큰 목표를 세우시며, 한번 시작하면 끝까지 가십니다. 박쌤은 사업가의 결을 타고나셨습니다. 다만 일에 매몰되어 관계를 잃지 않도록, 사랑하는 사람을 위한 시간을 따로 두세요.'},
+  9:{kw:'완성·자비',desc:'박쌤은 9의 에너지 - 완성과 자비의 사람입니다. 사람을 돕고 세상을 더 나은 곳으로 만들고 싶은 마음이 깊으십니다. 인도주의적 사명이 박쌤 안에 있습니다. 다만 모두를 구원할 수는 없으니, 한 사람씩 깊게 돕는 길을 선택하세요.'},
+  11:{kw:'영감·통찰 (마스터)',desc:'박쌤은 11의 마스터 넘버 - 영적 영감과 통찰의 사람입니다. 일반 2의 조화에 더해 영적 안목과 직관이 깊으십니다. 박쌤이 가진 감수성은 평범하지 않습니다. 다만 너무 예민하여 외부 자극에 쉽게 흔들릴 수 있으니, 자신만의 보호막을 만드세요.'},
+  22:{kw:'대업·건설 (마스터)',desc:'박쌤은 22의 마스터 넘버 - 큰 일을 짓는 사람입니다. 4의 안정에 더해 거대한 비전을 현실로 만드는 힘이 있으십니다. 박쌤이 마음먹은 일은 사회적 영향까지 미치는 큰 결실로 이어집니다. 다만 책임이 크기에 번아웃을 조심하세요.'},
+  33:{kw:'헌신·교육 (마스터)',desc:'박쌤은 33의 마스터 넘버 - 사랑과 헌신의 마스터 티처입니다. 6의 사랑에 더해 영적 가르침을 전하는 사명이 있으십니다. 박쌤이 만나는 사람들은 모두 박쌤을 통해 깊어집니다. 헌신이 크기에 자기 돌봄이 가장 큰 과제입니다.'}
+};
+var NUMERO_LUCKY={
+  1:{color:'빨강·골드',day:'일요일·월요일',gem:'루비·다이아몬드'},
+  2:{color:'은색·연두',day:'월요일·금요일',gem:'문스톤·진주'},
+  3:{color:'노랑·보라',day:'목요일',gem:'토파즈·아메지스트'},
+  4:{color:'녹색·파랑',day:'토요일·일요일',gem:'에메랄드·사파이어'},
+  5:{color:'은색·연회색',day:'수요일',gem:'다이아몬드'},
+  6:{color:'분홍·하늘색',day:'금요일',gem:'에메랄드·로즈쿼츠'},
+  7:{color:'보라·은색',day:'월요일',gem:'문스톤·아메지스트'},
+  8:{color:'검정·진한 청색',day:'토요일',gem:'블루사파이어'},
+  9:{color:'빨강·진홍',day:'화요일',gem:'코랄·루비'},
+  11:{color:'은색·연보라',day:'월요일',gem:'문스톤·라브라도라이트'},
+  22:{color:'진청·골드',day:'토요일',gem:'사파이어·시트린'},
+  33:{color:'분홍·하얀',day:'금요일',gem:'로즈쿼츠'}
+};
+// 한글 자모 → 숫자(피타고라스 변형)
+var HANGUL_CHO={'ㄱ':1,'ㄲ':2,'ㄴ':2,'ㄷ':3,'ㄸ':6,'ㄹ':4,'ㅁ':5,'ㅂ':6,'ㅃ':3,'ㅅ':7,'ㅆ':5,'ㅇ':8,'ㅈ':9,'ㅉ':9,'ㅊ':1,'ㅋ':2,'ㅌ':3,'ㅍ':4,'ㅎ':5};
+var HANGUL_JUNG={'ㅏ':1,'ㅐ':5,'ㅑ':3,'ㅒ':7,'ㅓ':2,'ㅔ':6,'ㅕ':4,'ㅖ':8,'ㅗ':5,'ㅘ':6,'ㅙ':9,'ㅚ':7,'ㅛ':7,'ㅜ':2,'ㅝ':3,'ㅞ':4,'ㅟ':6,'ㅠ':4,'ㅡ':3,'ㅢ':8,'ㅣ':9};
+var HANGUL_JONG={'':0,'ㄱ':1,'ㄲ':2,'ㄳ':3,'ㄴ':2,'ㄵ':4,'ㄶ':5,'ㄷ':3,'ㄹ':4,'ㄺ':5,'ㄻ':6,'ㄼ':7,'ㄽ':8,'ㄾ':9,'ㄿ':1,'ㅀ':2,'ㅁ':5,'ㅂ':6,'ㅄ':7,'ㅅ':7,'ㅆ':5,'ㅇ':8,'ㅈ':9,'ㅊ':1,'ㅋ':2,'ㅌ':3,'ㅍ':4,'ㅎ':5};
+var HG_CHO_LIST=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+var HG_JUNG_LIST=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+var HG_JONG_LIST=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+var VOWELS=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+
+function decomposeHangul(ch){var c=ch.charCodeAt(0)-0xAC00;if(c<0||c>11171)return null;var jong=c%28;var jung=Math.floor((c-jong)/28)%21;var cho=Math.floor(c/(21*28));return[HG_CHO_LIST[cho],HG_JUNG_LIST[jung],HG_JONG_LIST[jong]];}
+function reduceNum(n){while(n>9&&n!==11&&n!==22&&n!==33){var s=0;String(n).split('').forEach(function(d){s+=parseInt(d,10);});n=s;}return n;}
+function calcNumerology(name,y,m,d){
+  // 생명수 = 생년월일 모든 숫자 합
+  var lifeRaw=String(y)+String(m)+String(d);
+  var lifeSum=0;lifeRaw.split('').forEach(function(c){lifeSum+=parseInt(c,10);});
+  var lifePath=reduceNum(lifeSum);
+  // 생일수 = 일자 → 축소
+  var birthDay=reduceNum(d);
+  // 이름 분해
+  var chos=0,vows=0,cons=0,all=0;
+  if(name){
+    for(var i=0;i<name.length;i++){
+      var dec=decomposeHangul(name[i]);
+      if(!dec)continue;
+      chos+=HANGUL_CHO[dec[0]]||0;
+      vows+=HANGUL_JUNG[dec[1]]||0;
+      if(dec[2])cons+=HANGUL_JONG[dec[2]]||0;
+    }
+    all=chos+vows+cons;
+  }
+  var destiny=name?reduceNum(all):null;
+  var soul=name?reduceNum(vows):null;
+  var person=name?reduceNum(chos+cons):null;
+  return{lifePath:lifePath,birthDay:birthDay,destiny:destiny,soul:soul,personality:person,raw:{lifeSum:lifeSum,nameAll:all,vowels:vows,cons:chos+cons}};
+}
+
+// ════════════════════════════════════════════════════════
+// 12별자리 + 12하우스
+// ════════════════════════════════════════════════════════
+var ZODIAC=[
+  {n:'염소자리',e:'Capricorn',em:'♑',sd:[12,22],ed:[1,19],kw:'성실·야망',rule:'토성',
+   desc:'박쌤은 염소자리, 산을 끝까지 오르는 사람입니다. 인내심이 깊고 책임감이 강하며, 사회적 성취를 향한 의지가 단단합니다. 다만 자신에게 너무 엄격할 때가 있으니, 가끔은 멈춰서 풍경을 즐기세요.'},
+  {n:'물병자리',e:'Aquarius',em:'♒',sd:[1,20],ed:[2,18],kw:'독창·자유',rule:'천왕성',
+   desc:'박쌤은 물병자리, 시대를 앞서가는 사람입니다. 독창적이고 인도주의적이며, 남들이 못 보는 것을 봅니다. 다만 감정 표현이 서툴 수 있어, 가까운 사람에게 더 따뜻하게 다가가세요.'},
+  {n:'물고기자리',e:'Pisces',em:'♓',sd:[2,19],ed:[3,20],kw:'직관·공감',rule:'해왕성',
+   desc:'박쌤은 물고기자리, 두 세계를 오가는 사람입니다. 깊은 공감과 영적 감수성이 자산이지만, 너무 흡수하면 박쌤이 닳습니다. 자신만의 경계를 지키세요.'},
+  {n:'양자리',e:'Aries',em:'♈',sd:[3,21],ed:[4,19],kw:'개척·열정',rule:'화성',
+   desc:'박쌤은 양자리, 시작의 별을 가진 개척자입니다. 행동력과 추진력이 가장 큰 무기입니다. 다만 인내심이 약점이라, 끝까지 가는 훈련을 하세요.'},
+  {n:'황소자리',e:'Taurus',em:'♉',sd:[4,20],ed:[5,20],kw:'안정·풍요',rule:'금성',
+   desc:'박쌤은 황소자리, 안정과 아름다움의 사람입니다. 끈기 있고 미적 감각이 뛰어나며, 박쌤이 만드는 것에는 깊이가 있습니다. 변화에 둔한 게 약점입니다.'},
+  {n:'쌍둥이자리',e:'Gemini',em:'♊',sd:[5,21],ed:[6,21],kw:'소통·다재',rule:'수성',
+   desc:'박쌤은 쌍둥이자리, 호기심의 사람입니다. 다양한 정보와 사람을 흡수하고, 말과 글로 박쌤을 표현합니다. 한 곳에 머물기 어려운 게 그림자입니다.'},
+  {n:'게자리',e:'Cancer',em:'♋',sd:[6,22],ed:[7,22],kw:'가정·돌봄',rule:'달',
+   desc:'박쌤은 게자리, 따뜻한 보호자입니다. 가족과 가까운 사람들을 향한 사랑이 가장 깊으십니다. 다만 상처를 오래 간직하니, 흘려보내는 연습이 필요합니다.'},
+  {n:'사자자리',e:'Leo',em:'♌',sd:[7,23],ed:[8,22],kw:'리더·자존감',rule:'태양',
+   desc:'박쌤은 사자자리, 태양의 별을 가진 분입니다. 어디에 가도 중심이 되고, 자존감이 크며 너그럽습니다. 다만 인정 욕구가 크니, 자신 안의 빛을 먼저 보세요.'},
+  {n:'처녀자리',e:'Virgo',em:'♍',sd:[8,23],ed:[9,22],kw:'분석·완벽',rule:'수성',
+   desc:'박쌤은 처녀자리, 디테일의 마스터입니다. 분석력과 정확성이 뛰어나, 박쌤이 손대는 일은 정돈됩니다. 다만 완벽주의가 자신을 괴롭히지 않도록 챙기세요.'},
+  {n:'천칭자리',e:'Libra',em:'♎',sd:[9,23],ed:[10,22],kw:'균형·아름다움',rule:'금성',
+   desc:'박쌤은 천칭자리, 균형의 사람입니다. 미적 감각과 사교성이 뛰어나, 사람들 사이 조화를 만듭니다. 결정을 미루는 그림자가 있으니 결단력을 기르세요.'},
+  {n:'전갈자리',e:'Scorpio',em:'♏',sd:[10,23],ed:[11,21],kw:'몰입·재생',rule:'명왕성',
+   desc:'박쌤은 전갈자리, 깊이의 사람입니다. 한번 빠지면 끝까지 가시고, 변환과 재생의 힘이 깊습니다. 다만 너무 깊이 들어가면 빠져나오기 어려우니, 객관화 훈련을 하세요.'},
+  {n:'사수자리',e:'Sagittarius',em:'♐',sd:[11,22],ed:[12,21],kw:'자유·확장',rule:'목성',
+   desc:'박쌤은 사수자리, 화살을 쏘는 자유의 사람입니다. 큰 시야와 모험심, 철학적 사고가 박쌤의 자산입니다. 디테일 약함과 즉흥성이 그림자입니다.'}
+];
+
+function getSunSign(m,d){for(var i=0;i<ZODIAC.length;i++){var z=ZODIAC[i],s=z.sd,e=z.ed;if((m===s[0]&&d>=s[1])||(m===e[0]&&d<=e[1]))return z;}return ZODIAC[0];}
+
+// 12하우스 데이터
+var HOUSES=[
+  {n:'1하우스',a:'자아·외모·첫인상',d:'박쌤이 세상에 보여지는 모습. 외모, 첫인상, 인생 출발점의 색깔. 박쌤의 가장 본능적인 자아가 머무는 자리입니다.'},
+  {n:'2하우스',a:'재물·가치관·소유',d:'박쌤이 가진 것과 벌어들이는 것. 돈에 대한 태도와 자기 가치감. 박쌤이 무엇을 "내 것"이라 부르는지가 여기 담깁니다.'},
+  {n:'3하우스',a:'소통·형제·근거리 이동',d:'박쌤의 말하기·글쓰기·배움. 형제자매와의 관계, 동네·일상 이동. 박쌤이 정보를 다루는 방식이 보입니다.'},
+  {n:'4하우스',a:'가정·뿌리·부동산',d:'박쌤의 어머니·고향·집. 마음의 안식처, 부동산. 박쌤이 어디서 가장 편안한지가 여기 담깁니다.'},
+  {n:'5하우스',a:'창조·연애·자녀·취미',d:'박쌤의 연애·창작·즐거움·자녀. 박쌤이 가장 박쌤답게 빛나는 영역입니다.'},
+  {n:'6하우스',a:'직업·건강·일상 노동',d:'박쌤의 매일 하는 일, 직장, 몸 관리. 박쌤의 일과 건강 습관이 여기서 결정됩니다.'},
+  {n:'7하우스',a:'결혼·파트너십·계약',d:'박쌤의 결혼 상대, 동업자, 공식 계약. 박쌤이 어떤 파트너를 만나는지가 보입니다.'},
+  {n:'8하우스',a:'변환·공동재산·신비',d:'박쌤의 깊은 변환·재생·상속·심리·성. 박쌤이 가장 강해지는 자리이자 가장 깊이 묻힌 자리입니다.'},
+  {n:'9하우스',a:'철학·해외·고등교육',d:'박쌤의 신념·종교·해외·먼 여행·대학원. 박쌤의 세계관이 넓어지는 영역입니다.'},
+  {n:'10하우스',a:'사회적 지위·명예·아버지',d:'박쌤의 직업적 정점, 사회적 위치, 명예. 박쌤이 세상에서 어떻게 기억되는지가 담깁니다.'},
+  {n:'11하우스',a:'친구·이상·동호회',d:'박쌤의 친구·사회적 모임·꿈. 박쌤이 어떤 사람들과 어울리고 무엇을 꿈꾸는지 보입니다.'},
+  {n:'12하우스',a:'잠재의식·영성·고독',d:'박쌤의 무의식·꿈·영적 세계·은둔. 박쌤의 가장 신비로운 자리, 보이지 않는 힘이 작동하는 곳입니다.'}
+];
+
+// ════════════════════════════════════════════════════════
+// 헬퍼: 이름 자동 치환 (한국어 조사 처리)
+// ════════════════════════════════════════════════════════
+function hasJong(name){if(!name)return false;var ch=name.charCodeAt(name.length-1)-0xAC00;if(ch<0||ch>11171)return false;return(ch%28)!==0;}
+function applyName(txt,nm){
+  if(!nm||nm==='박쌤')return txt;
+  // "박쌤" + 조사 패턴들
+  var jong=hasJong(nm);
+  return txt.replace(/박쌤은/g,nm+(jong?'은':'는'))
+            .replace(/박쌤이/g,nm+(jong?'이':'가'))
+            .replace(/박쌤을/g,nm+(jong?'을':'를'))
+            .replace(/박쌤의/g,nm+'의')
+            .replace(/박쌤에게/g,nm+'에게')
+            .replace(/박쌤과/g,nm+(jong?'과':'와'))
+            .replace(/박쌤,/g,nm+',')
+            .replace(/박쌤님/g,nm+'님')
+            .replace(/박쌤/g,nm);
+}
+
+// ════════════════════════════════════════════════════════
+// 년월별 12개월 풀이 생성
+// ════════════════════════════════════════════════════════
+function buildMonthlyFortune(daySt,year){
+  var months=getMonthlyFortune(year);
+  var result=[];
+  var de=S_ELEM[STEMS.indexOf(daySt)];
+  for(var i=0;i<months.length;i++){
+    var m=months[i];
+    var ts=getTenStar(daySt,m.stem);
+    var me=S_ELEM[STEMS.indexOf(m.stem)];
+    var be=B_ELEM[BRANCHES.indexOf(m.branch)];
+    // 길흉 강도 (별점)
+    var rating=3;
+    var helpful=['식신','정재','정관','정인','상관','편재'];
+    var caution=['편관','겁재'];
+    if(helpful.indexOf(ts)>=0)rating=4;
+    if(ts==='정인'||ts==='정재'||ts==='식신')rating=4;
+    if(caution.indexOf(ts)>=0)rating=2;
+    // 일간 강약에 따라 보정
+    if(EL_GEN_R[de]===me||me===de)rating=Math.min(5,rating+1);
+    if(EL_CTR_R[de]===me)rating=Math.max(1,rating-1);
+    result.push({
+      month:m.monthNum,label:m.label,dates:m.dates,
+      ganji:m.stem+m.branch,stem:m.stem,branch:m.branch,
+      tenStar:ts,monthElem:me,branchElem:be,
+      rating:rating,
+      wealth:genMonthWealth(ts,me,de,rating),
+      move:genMonthMove(m.branch,ts,me,de),
+      job:genMonthJob(ts,me,de,rating),
+      love:genMonthLove(ts,m.branch,daySt),
+      child:genMonthChild(ts,me,de),
+      health:genMonthHealth(de,me,be,ts),
+      warn:genMonthWarn(ts,me,de,rating),
+      summary:genMonthSummary(m.monthNum,ts,rating,m.ganji)
+    });
+  }
+  return result;
+}
+
+function genMonthWealth(ts,me,de,r){
+  if(ts==='정재')return '월급·고정 수입이 안정적으로 들어옵니다. 큰 변동 없이 차곡차곡 쌓이는 달입니다.';
+  if(ts==='편재')return '활동을 통한 부수입과 거래의 기회가 들어옵니다. 사람을 만나고 움직일수록 재물의 길이 열립니다.';
+  if(ts==='식신'||ts==='상관')return '본인의 재능과 표현에서 수입이 나오는 달입니다. 콘텐츠·강의·창작 활동이 길합니다.';
+  if(ts==='정관')return '직장·공식 거래에서 좋은 소식이 옵니다. 신뢰가 곧 돈이 되는 달입니다.';
+  if(ts==='편관')return '강한 추진이 있는 만큼 큰 거래도 가능하지만, 무리한 확장은 피하는 게 좋습니다.';
+  if(ts==='정인')return '문서·자격·계약 관련 수입이 들어옵니다. 배움에 투자해도 회수되는 달입니다.';
+  if(ts==='편인')return '특수 분야·전문성에서 기회가 옵니다. 다만 욕심내기보다 흐름에 맡기세요.';
+  if(ts==='비견')return '동료와 함께하는 거래·공동 사업에서 수익이 납니다. 단독 큰 투자는 피하세요.';
+  if(ts==='겁재')return '경쟁자가 등장하거나 돈이 새는 일이 있을 수 있습니다. 보증·동업은 신중히.';
+  return '평이한 흐름. 무리하지 않으면 큰 손실은 없습니다.';
+}
+function genMonthMove(br,ts,me,de){
+  var dirs={자:'북',축:'북동',인:'동북',묘:'동',진:'동남',사:'남동',오:'남',미:'남서',신:'서남',유:'서',술:'서북',해:'북서'};
+  var dir=dirs[br]||'중앙';
+  if(ts==='편재'||ts==='상관')return dir+'쪽으로의 이동·출장이 길합니다. 새로운 환경에서 좋은 인연을 만납니다.';
+  if(ts==='역마'||br==='인'||br==='신'||br==='사'||br==='해')return '역마 작용. '+dir+'쪽 이동이 활발해지는 달입니다.';
+  if(ts==='정관')return '공식 업무로 인한 이동이 있습니다. '+dir+'쪽이 길합니다.';
+  return '큰 이동보다 안정적인 자리 지킴이 길합니다.';
+}
+function genMonthJob(ts,me,de,r){
+  if(ts==='정관'||ts==='편관')return '직장·승진·인사 관련 좋은 소식이 옵니다. 윗사람의 인정을 받는 달입니다.';
+  if(ts==='식신')return '본업에 즐거움이 더해지는 달입니다. 업무가 잘 풀립니다.';
+  if(ts==='상관')return '창의적 프로젝트가 빛납니다. 기존 틀을 깨는 시도가 인정받습니다.';
+  if(ts==='정재')return '안정적으로 본업이 운영됩니다. 큰 변화는 없습니다.';
+  if(ts==='편재')return '활동과 거래가 활발한 달. 사업·영업·기획이 잘 됩니다.';
+  if(ts==='정인'||ts==='편인')return '문서·계약·자격증 관련 좋은 진행. 공부와 학습 운이 강합니다.';
+  if(ts==='비견')return '동료와 협력이 강화되는 달. 팀 프로젝트가 길합니다.';
+  if(ts==='겁재')return '경쟁이 격해질 수 있는 달. 본인 페이스를 지키세요.';
+  return '평이한 진행. 큰 사고 없이 무난합니다.';
+}
+function genMonthLove(ts,br,daySt){
+  if(ts==='정재'||ts==='편재')return '재성 작용으로 이성 인연이 활발해지는 달입니다. 새로운 만남과 데이트 기회.';
+  if(ts==='정관'||ts==='편관')return '관성 작용으로 좋은 만남이 들어옵니다. 진지한 관계로 발전할 수 있습니다.';
+  if(br==='묘'||br==='유'||br==='오'||br==='자')return '도화 작용. 매력 발산과 인기가 높아집니다.';
+  if(ts==='식신'||ts==='상관')return '본인의 매력과 표현력이 빛납니다. 사람들이 박쌤에게 모입니다.';
+  return '잔잔한 흐름. 가까운 인연을 깊이 가꾸기 좋은 달.';
+}
+function genMonthChild(ts,me,de){
+  if(ts==='식신')return '자녀와 따뜻한 시간. 자녀의 표현과 재능이 발휘되는 달입니다.';
+  if(ts==='상관')return '자녀의 창의성이 빛납니다. 자녀의 변화·전환이 있을 수 있습니다.';
+  if(ts==='편관')return '자녀의 학업·진로에 압박이 있을 수 있습니다. 따뜻한 격려가 필요합니다.';
+  return '자녀와 평이한 흐름. 일상의 대화를 늘리세요.';
+}
+function genMonthHealth(de,me,be,ts){
+  var weak={목:'간·근육·눈',화:'심장·혈압',토:'위장·췌장',금:'폐·피부',수:'신장·허리'};
+  if(EL_CTR[me]===de||EL_CTR[be]===de)return '일간을 극하는 기운. '+weak[de]+'에 무리가 갈 수 있으니 휴식과 검진을 챙기세요.';
+  if(EL_GEN[me]===de)return '몸이 충전되는 달. '+weak[de]+' 관리에 좋은 시기입니다.';
+  if(ts==='편관')return '스트레스 누적 주의. 충분한 수면과 휴식 필수.';
+  return '큰 무리 없이 안정적인 흐름. 평소 습관을 지키세요.';
+}
+function genMonthWarn(ts,me,de,r){
+  if(r<=2){
+    if(ts==='편관')return '강한 압박과 갈등. 무리한 결정 보류, 충돌 회피.';
+    if(ts==='겁재')return '돈이 새거나 경쟁자 등장. 보증·동업 신중.';
+    if(EL_CTR[me]===de)return '일간이 극받는 달. 건강·감정 관리 최우선.';
+    return '평소보다 조심스러운 접근이 필요한 달.';
+  }
+  return null;
+}
+function genMonthSummary(num,ts,r,gj){
+  var stars='★'.repeat(r)+'☆'.repeat(5-r);
+  var tone=r>=4?'매우 좋은':(r===3?'평이한':(r===2?'다소 무거운':'조심스러운'));
+  return num+'월은 박쌤에게 '+gj+'월이 작용하는 '+tone+' 흐름입니다. '+STAR_DESC[ts]+' 이 한 달의 키워드가 됩니다.';
+}
+
+// ════════════════════════════════════════════════════════
+// 메인 결과 빌드
+// ════════════════════════════════════════════════════════
+var $data=null;
+
+function showResult(input){
+  // 날짜 변환 (음력이면)
+  var y=input.year,m=input.month,d=input.day;
+  if(input.cal==='lunar'){
+    var sol=lunarToSolar(y,m,d);
+    if(!sol)return;
+    y=sol[0];m=sol[1];d=sol[2];
+  }
+  var yp=getYearPillar(y,m,d);
+  var mp=getMonthPillar(y,m,d);
+  var dp=getDayPillar(y,m,d);
+  var hp=getHourPillar(dp.stem,input.hour);
+  var pillars=[yp,mp,dp,hp];
+  var elem=calcElements(pillars);
+  var strength=getStrength(S_ELEM[STEMS.indexOf(dp.stem)],pillars);
+  var ssal=calcSsal(pillars,dp.stem);
+  var daeun=calcDaeun(yp,mp,input.gender,y,m,d);
+  var curYear=2026;
+  var curAge=curYear-y+1;
+  var yearF=getYearFortune(curYear);
+  var monthly=buildMonthlyFortune(dp.stem,curYear);
+  var numero=calcNumerology(input.name,y,m,d);
+  var sun=getSunSign(m,d);
+  $data={
+    input:input,solar:{y:y,m:m,d:d},
+    pillars:pillars,yp:yp,mp:mp,dp:dp,hp:hp,
+    elem:elem,strength:strength,ssal:ssal,daeun:daeun,
+    curYear:curYear,curAge:curAge,yearF:yearF,
+    monthly:monthly,numero:numero,sun:sun,
+    name:input.name||'박쌤'
+  };
+  buildCover();
+  buildTabs();
+  buildAllPanes();
+  document.getElementById('pg-loading').style.display='none';
+  document.getElementById('pg-result').style.display='block';
+  window.scrollTo(0,0);
+}
+
+function buildCover(){
+  var d=$data,nm=d.name;
+  var pStr=d.yp.stem+d.yp.branch+' '+d.mp.stem+d.mp.branch+' '+d.dp.stem+d.dp.branch+(d.hp?' '+d.hp.stem+d.hp.branch:' --');
+  var ig=ILGAN_DATA[d.dp.stem];
+  var nlp=NUMERO_MEANING[d.numero.lifePath];
+  var html='<div class="cover-r">'+
+    '<div class="brand">✦ FORTUNE TELLING REPORT v2 ✦</div>'+
+    '<div class="dia-s"><span>'+ig.em+'</span></div>'+
+    '<h1>'+nm+'</h1>'+
+    '<div class="subt">'+d.solar.y+'.'+d.solar.m+'.'+d.solar.d+' · '+(d.input.gender==='M'?'남성':'여성')+'</div>'+
+    '<div class="tags">'+
+      '<span class="tag">'+ig.n+'</span>'+
+      '<span class="tag">'+d.sun.em+' '+d.sun.n+'</span>'+
+      '<span class="tag">생명수 '+d.numero.lifePath+'</span>'+
+      '<span class="tag">'+d.strength+'</span>'+
+    '</div>'+
+    '<div class="quote">'+
+      '"'+ig.kw+'"의 결을 타고나신 '+nm+'님,<br>'+
+      applyName('박쌤의 일간은 <strong>'+ig.n+'</strong>입니다. ',nm)+'<br>'+
+      '하늘의 별과 땅의 기운, 카드와 숫자가 함께 풀어드리는<br>'+
+      '<strong>'+nm+'님만의 운명 보고서</strong>를 시작합니다.'+
+    '</div>'+
+  '</div>';
+  document.getElementById('cover-area').innerHTML=html;
+}
+
+var TABS=[
+  {id:'summary',icon:'✦',name:'종합'},
+  {id:'saju',icon:'🪷',name:'사주'},
+  {id:'monthly',icon:'📅',name:'2026 월별'},
+  {id:'tarot',icon:'🃏',name:'타로'},
+  {id:'numero',icon:'🔢',name:'수비학'},
+  {id:'astro',icon:'⭐',name:'점성술'},
+  {id:'qa',icon:'💬',name:'Q&A'}
+];
+
+function buildTabs(){
+  var html='';
+  TABS.forEach(function(t,i){
+    html+='<button class="tab '+(i===0?'active':'')+'" data-tid="'+t.id+'"><span class="tab-icon">'+t.icon+'</span>'+t.name+'</button>';
+  });
+  document.getElementById('tabs').innerHTML=html;
+  document.querySelectorAll('.tab').forEach(function(b){
+    b.addEventListener('click',function(){
+      var tid=this.getAttribute('data-tid');
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+      this.classList.add('active');
+      document.querySelectorAll('.tab-pane').forEach(function(x){x.classList.remove('active');});
+      var p=document.getElementById('pane-'+tid);
+      if(p)p.classList.add('active');
+      window.scrollTo(0,0);
+    });
+  });
+}
+
+function buildAllPanes(){
+  var html='';
+  html+='<div class="tab-pane active" id="pane-summary">'+buildSummaryPane()+'</div>';
+  html+='<div class="tab-pane" id="pane-saju">'+buildSajuPane()+'</div>';
+  html+='<div class="tab-pane" id="pane-monthly">'+buildMonthlyPane()+'</div>';
+  html+='<div class="tab-pane" id="pane-tarot">'+buildTarotPane()+'</div>';
+  html+='<div class="tab-pane" id="pane-numero">'+buildNumeroPane()+'</div>';
+  html+='<div class="tab-pane" id="pane-astro">'+buildAstroPane()+'</div>';
+  html+='<div class="tab-pane" id="pane-qa">'+buildQAPane()+'</div>';
+  document.getElementById('panes').innerHTML=html;
+  initTarot();
+  initQA();
+}
+
+function sec(num,title,desc,body){
+  return '<div class="section"><div class="sec-h"><div class="sec-num">'+num+'</div><div><div class="sec-title">'+title+'</div><div class="sec-desc">'+desc+'</div></div></div>'+body+'</div>';
+}
+
+// ───── 종합 ─────
+function buildSummaryPane(){
+  var d=$data,nm=d.name;
+  var ig=ILGAN_DATA[d.dp.stem];
+  var nlp=NUMERO_MEANING[d.numero.lifePath];
+  var ndlp=NUMERO_MEANING[d.numero.destiny]||null;
+  var topMon=d.monthly.filter(function(m){return m.rating>=4;}).slice(0,3);
+  var lowMon=d.monthly.filter(function(m){return m.rating<=2;}).slice(0,2);
+  var html='';
+  // 핵심 요약
+  html+=sec('S1','네 가지 별의 핵심 요약','사주·점성·타로·수비학이 알려주는 박쌤의 본질',
+    '<div class="dark-card"><h3>✦ '+nm+'님의 다섯 줄 요약 ✦</h3>'+
+    '<p>'+applyName('① 사주: 박쌤은 <strong>'+ig.n+'</strong>의 결을 타고난 분, "'+ig.kw+'"가 박쌤의 핵심 키워드입니다.',nm)+'</p>'+
+    '<p>② 점성: <strong>'+d.sun.em+' '+d.sun.n+'</strong> - "'+d.sun.kw+'"의 별을 가진 분, '+d.sun.rule+'이 박쌤을 다스립니다.</p>'+
+    '<p>③ 수비학: 생명수 <strong>'+d.numero.lifePath+'</strong> - "'+nlp.kw+'"의 길을 걷는 사람입니다.</p>'+
+    '<p>④ 신살: '+(d.ssal.dohwa.where.length?'도화('+d.ssal.dohwa.val+')가 박쌤에게 작용 - 매력과 인기.':'특별한 도화 없음 - 차분한 매력.')+'</p>'+
+    '<p>⑤ 운세 흐름: '+d.strength+' / 현재 대운 '+(d.daeun.list.find(function(x){return d.curAge>=x.age&&d.curAge<=x.end;})||d.daeun.list[0]).stem+(d.daeun.list.find(function(x){return d.curAge>=x.age&&d.curAge<=x.end;})||d.daeun.list[0]).branch+' / 2026 세운 '+d.yearF.stem+d.yearF.branch+'.</p>'+
+    '</div>'+
+    '<div class="warm-card"><h3>🌟 '+nm+'님께 전하는 박쌤의 한마디</h3>'+
+    '<p>'+applyName('박쌤, 박쌤이 가진 별의 청사진은 정해진 운명이 아닙니다. ',nm)+applyName('박쌤이 매일 어떤 선택을 하느냐에 따라 그 청사진은 완전히 다른 그림이 됩니다. ',nm)+'</p>'+
+    '<p>'+applyName('박쌤의 사주는 <strong>'+ig.kw+'</strong>의 본성을, ',nm)+'점성술은 <strong>'+d.sun.kw+'</strong>의 별을, 수비학은 <strong>'+nlp.kw+'</strong>의 길을 알려줍니다. 네 가지가 한 방향을 가리키는 영역이 박쌤이 가장 잘 풀리는 자리입니다.</p>'+
+    '<p>'+applyName('이 보고서는 박쌤의 인생 GPS입니다. ',nm)+'다음 탭들을 천천히 둘러보시며 박쌤만의 길을 찾아가세요.</p></div>');
+  // 2026 핵심 흐름
+  var topStr='';
+  topMon.forEach(function(m){topStr+='<li><strong>'+m.month+'월 ('+m.ganji+'월)</strong>: '+m.summary.split('이 한 달의 키워드')[0]+'</li>';});
+  var lowStr='';
+  lowMon.forEach(function(m){lowStr+='<li><strong>'+m.month+'월 ('+m.ganji+'월)</strong>: '+m.summary.split('이 한 달의 키워드')[0]+'</li>';});
+  html+=sec('S2','2026년 한 해 흐름 미리보기','12개월 상세는 [2026 월별] 탭에서',
+    '<div class="warm-card"><h3>📅 '+nm+'님의 2026 핵심 월</h3>'+
+    (topStr?'<p><strong>✨ 가장 좋은 흐름</strong></p><ul style="padding-left:20px;font-size:13px;line-height:2">'+topStr+'</ul>':'')+
+    (lowStr?'<p style="margin-top:12px"><strong>⚠️ 조심스러운 시기</strong></p><ul style="padding-left:20px;font-size:13px;line-height:2">'+lowStr+'</ul>':'')+
+    '</div>');
+  return html;
+}
+
+// ───── 사주 ─────
+function buildSajuPane(){
+  var d=$data,nm=d.name;
+  var ig=ILGAN_DATA[d.dp.stem];
+  var html='';
+  // 8글자
+  var pillarHTML='<table class="saju-table"><thead><tr><th>구분</th><th>시주(時)</th><th>일주(日)</th><th>월주(月)</th><th>년주(年)</th></tr></thead><tbody>';
+  pillarHTML+='<tr><td>천간</td>';
+  [d.hp,d.dp,d.mp,d.yp].forEach(function(p){
+    if(!p){pillarHTML+='<td><div class="stem-c" style="color:#bbb">?</div><div class="elem-c">시간 모름</div></td>';return;}
+    var el=S_ELEM[STEMS.indexOf(p.stem)];
+    pillarHTML+='<td><div class="stem-c" style="color:'+EL_COLOR[el]+'">'+p.stem+'</div><div class="elem-c">'+EL_EMOJI[el]+' '+el+'</div></td>';
+  });
+  pillarHTML+='</tr><tr><td>지지</td>';
+  [d.hp,d.dp,d.mp,d.yp].forEach(function(p){
+    if(!p){pillarHTML+='<td><div class="branch-c" style="color:#bbb">?</div></td>';return;}
+    var el=B_ELEM[BRANCHES.indexOf(p.branch)];
+    pillarHTML+='<td><div class="branch-c" style="color:'+EL_COLOR[el]+'">'+p.branch+'</div><div class="elem-c">'+EL_EMOJI[el]+' '+el+'</div><div class="elem-c" style="font-size:10px">'+BRANCH_ANIMAL[p.branch]+'</div></td>';
+  });
+  pillarHTML+='</tr><tr><td>십성</td>';
+  [d.hp,d.dp,d.mp,d.yp].forEach(function(p){
+    if(!p){pillarHTML+='<td>-</td>';return;}
+    if(p===d.dp){pillarHTML+='<td style="background:#fff5d8;font-weight:700;color:#8b6914">일간</td>';return;}
+    pillarHTML+='<td style="font-size:12px;color:#7a6038;font-weight:600">'+getTenStar(d.dp.stem,p.stem)+'</td>';
+  });
+  pillarHTML+='</tr></tbody></table>';
+  html+=sec('1','사주 8글자','박쌤의 운명을 이루는 네 기둥',
+    pillarHTML+
+    '<div class="dark-card"><h3>일간 '+ig.n+' '+ig.em+' 박쌤의 본성</h3>'+
+    '<p>'+applyName(ig.desc,nm).replace(/\n\n/g,'</p><p>')+'</p></div>');
+  // 오행
+  var elHTML='';
+  var max=Math.max(d.elem.목,d.elem.화,d.elem.토,d.elem.금,d.elem.수,1);
+  ['목','화','토','금','수'].forEach(function(e){
+    var v=d.elem[e],pct=v/max*100;
+    elHTML+='<div class="el-row"><div class="el-name" style="color:'+EL_COLOR[e]+'">'+EL_EMOJI[e]+' '+e+'</div><div class="el-track"><div class="el-fill" style="background:'+EL_CSS[e]+';width:'+pct+'%">'+(v>=2?v:'')+'</div></div><div class="el-cnt">'+v+'</div></div>';
+  });
+  html+=sec('2','오행 분포','박쌤의 다섯 기운의 균형',
+    elHTML+'<div class="warm-card" style="margin-top:14px"><p><strong>'+d.strength+'</strong>: '+
+    (d.strength.indexOf('강')>=0?applyName('박쌤은 자기 주관이 뚜렷하고 추진력이 강합니다. 식상·재성으로 기운을 내보내는 활동(표현·일·사업)이 길합니다.',nm):applyName('박쌤은 신중하고 섬세합니다. 인성·비겁으로 기운을 채우는 활동(공부·휴식·동료)이 도움이 됩니다.',nm))+'</p></div>');
+  // 신살
+  var ssalHTML='<div class="ssal-grid">';
+  var ssalArr=[
+    {k:'도화살',v:d.ssal.dohwa,em:'🌸',desc:'매력·인기·예술 재능'},
+    {k:'역마살',v:d.ssal.yeokma,em:'🐎',desc:'이동·변화·해외 활동'},
+    {k:'화개살',v:d.ssal.hwagae,em:'🪷',desc:'예술·종교·정신성'},
+    {k:'양인살',v:d.ssal.yangin,em:'⚔️',desc:'추진력·결단·강한 의지'}
+  ];
+  ssalArr.forEach(function(s){
+    var has=s.v.where.length>0;
+    ssalHTML+='<div class="ssal-card '+(has?'has':'')+'"><div class="ssal-name">'+s.em+' '+s.k+'</div><div class="ssal-val">'+(has?s.v.where.join(','):'-')+'</div><div class="ssal-where">'+s.desc+'</div></div>';
+  });
+  ssalHTML+='</div>';
+  html+=sec('3','신살(神煞)','박쌤의 운명에 작용하는 별',ssalHTML);
+  // 대운
+  var dunHTML='<div class="timeline">';
+  d.daeun.list.forEach(function(du,i){
+    var cur=d.curAge>=du.age&&d.curAge<=du.end;
+    var ts=getTenStar(d.dp.stem,du.stem);
+    var el=S_ELEM[STEMS.indexOf(du.stem)];
+    dunHTML+='<div class="tl-item"><div class="tl-left"><div class="tl-dot '+(cur?'active':'')+'"></div>'+(i<d.daeun.list.length-1?'<div class="tl-bar '+(cur?'active':'')+'"></div>':'')+'</div>'+
+      '<div class="tl-body '+(cur?'active':'')+'"><div class="tl-age">'+du.age+'세 ~ '+du.end+'세'+(cur?' · 현재':'')+'</div><div class="tl-ganji">'+du.stem+du.branch+'</div><div class="tl-elem">'+EL_EMOJI[el]+' '+el+' · '+ts+'</div><div class="tl-desc">'+STAR_DESC[ts]+'. '+
+      (cur?applyName('지금 박쌤은 이 흐름 위에 계십니다. ',nm):'')+
+      '</div></div></div>';
+  });
+  dunHTML+='</div>';
+  html+=sec('4','대운 흐름','10년 단위 인생 큰 그림 ('+d.daeun.startAge+'세부터 '+(d.daeun.fwd?'순행':'역행')+')',dunHTML);
+  // 세운
+  var yrHTML='<div class="year-grid">';
+  for(var i=-2;i<=7;i++){
+    var yy=d.curYear+i,yf=getYearFortune(yy),ts=getTenStar(d.dp.stem,yf.stem),el=S_ELEM[STEMS.indexOf(yf.stem)];
+    yrHTML+='<div class="year-card '+(i===0?'cur':'')+'"><div class="yc-year">'+yy+'년 ('+(yy-d.solar.y+1)+'세)</div><div class="yc-ganji" style="'+(i!==0?'color:'+EL_COLOR[el]:'')+'">'+yf.stem+yf.branch+'</div><div class="yc-star">'+EL_EMOJI[el]+' '+ts+'</div></div>';
+  }
+  yrHTML+='</div>';
+  html+=sec('5','세운(年運)','연도별 흐름 (현재 ~ 7년 후)',yrHTML);
+  return html;
+}
+
+// ───── 2026 월별 (핵심!) ─────
+function buildMonthlyPane(){
+  var d=$data,nm=d.name;
+  var html='';
+  html+=sec('M0','2026년 12개월 상세 상담','박쌤의 한 해 매월 흐름을 자세히',
+    '<div class="dark-card"><p>'+applyName('박쌤, 2026년은 박쌤에게 '+d.yearF.stem+d.yearF.branch+'년 - '+STAR_DESC[getTenStar(d.dp.stem,d.yearF.stem)]+'의 한 해입니다. 아래 12개의 카드를 천천히 보시면 박쌤이 어느 달에 무엇을 해야 할지 분명해집니다.',nm)+'</p></div>');
+  var monthHTML='<div class="month-wrap">';
+  d.monthly.forEach(function(mc){
+    var stars='';
+    for(var s=0;s<5;s++)stars+=(s<mc.rating?'★':'☆');
+    monthHTML+='<div class="month-card">'+
+      '<div class="mc-head">'+
+        '<div class="mc-month-num"><div class="mc-mn-num">'+mc.month+'</div><div class="mc-mn-lbl">月</div></div>'+
+        '<div class="mc-title"><h4>'+mc.month+'월 - '+mc.label+'</h4><div class="mc-meta">'+mc.dates+' · '+mc.tenStar+' 작용</div></div>'+
+        '<div class="mc-ganji-tag">'+mc.ganji+'월</div>'+
+      '</div>'+
+      '<div class="mc-stars">'+stars+'</div>'+
+      '<div class="mc-rows">'+
+        '<div class="mc-row'+(mc.rating>=4?' good':'')+'"><div class="mc-row-icon">💰</div><div class="mc-row-body"><div class="mc-row-lbl">재물·금전</div><div class="mc-row-txt">'+applyName(mc.wealth,nm)+'</div></div></div>'+
+        '<div class="mc-row"><div class="mc-row-icon">✈️</div><div class="mc-row-body"><div class="mc-row-lbl">이동·이사</div><div class="mc-row-txt">'+applyName(mc.move,nm)+'</div></div></div>'+
+        '<div class="mc-row"><div class="mc-row-icon">💼</div><div class="mc-row-body"><div class="mc-row-lbl">직장·사업</div><div class="mc-row-txt">'+applyName(mc.job,nm)+'</div></div></div>'+
+        '<div class="mc-row"><div class="mc-row-icon">💕</div><div class="mc-row-body"><div class="mc-row-lbl">인연·연애</div><div class="mc-row-txt">'+applyName(mc.love,nm)+'</div></div></div>'+
+        '<div class="mc-row"><div class="mc-row-icon">👶</div><div class="mc-row-body"><div class="mc-row-lbl">자녀·가족</div><div class="mc-row-txt">'+applyName(mc.child,nm)+'</div></div></div>'+
+        '<div class="mc-row"><div class="mc-row-icon">🩺</div><div class="mc-row-body"><div class="mc-row-lbl">건강·컨디션</div><div class="mc-row-txt">'+applyName(mc.health,nm)+'</div></div></div>'+
+        (mc.warn?'<div class="mc-row warn"><div class="mc-row-icon">⚠️</div><div class="mc-row-body"><div class="mc-row-lbl">주의사항</div><div class="mc-row-txt">'+applyName(mc.warn,nm)+'</div></div></div>':'')+
+      '</div>'+
+      '<div class="mc-foot"><strong>'+mc.month+'월 종합:</strong> '+applyName(mc.summary,nm)+'</div>'+
+    '</div>';
+  });
+  monthHTML+='</div>';
+  html+=monthHTML;
+  return html;
+}
+
+// ───── 타로 ─────
+function buildTarotPane(){
+  var d=$data,nm=d.name;
+  var html='';
+  html+=sec('T0','타로 카드 78장','박쌤이 직접 뽑는 운명 카드',
+    '<div class="warm-card"><p>'+applyName('박쌤, 마음에 한 가지 질문을 떠올리고 아래 카드들 중에서 뽑으세요. ',nm)+'78장의 카드 중 박쌤의 손이 닿는 카드가 곧 박쌤에게 필요한 메시지입니다.</p></div>'+
+    '<div class="tarot-question-box" style="margin-top:12px"><label>마음속 질문 (선택)</label><input id="tarot-q" type="text" placeholder="예: 올해 이직해도 될까요? / 이 사람과의 인연은 어떻게 될까요?"></div>'+
+    '<div class="tarot-mode" style="margin-top:14px">'+
+      '<button class="tmode-btn active" data-mode="1">🃏 한 장 뽑기</button>'+
+      '<button class="tmode-btn" data-mode="3">✦ 3장 (과거·현재·미래)</button>'+
+      '<button class="tmode-btn" data-mode="5">⭐ 5장 (V자 스프레드)</button>'+
+    '</div>'+
+    '<div id="tarot-board" class="tarot-board"></div>'+
+    '<div style="text-align:center;margin-top:14px"><button class="draw-tarot-btn" id="reshuffle-btn">🔄 카드 다시 섞기</button></div>'+
+    '<div id="tarot-result"></div>');
+  return html;
+}
+
+// ───── 수비학 ─────
+function buildNumeroPane(){
+  var d=$data,nm=d.name,n=d.numero;
+  var lp=NUMERO_MEANING[n.lifePath];
+  var bd=NUMERO_MEANING[n.birthDay];
+  var ds=n.destiny?NUMERO_MEANING[n.destiny]:null;
+  var su=n.soul?NUMERO_MEANING[n.soul]:null;
+  var pe=n.personality?NUMERO_MEANING[n.personality]:null;
+  var lucky=NUMERO_LUCKY[n.lifePath];
+  var html='';
+  html+=sec('N0','수비학 코어 5수','박쌤의 이름과 생일이 담은 숫자의 비밀',
+    '<div class="numero-grid">'+
+    '<div class="num-card"><div class="num-lbl">🌟 생명수</div><div class="num-big">'+n.lifePath+'</div><div style="font-size:11px;color:#7a6038;font-weight:700">'+lp.kw+'</div><div class="num-meaning">'+applyName(lp.desc,nm)+'</div></div>'+
+    '<div class="num-card"><div class="num-lbl">🎂 생일수</div><div class="num-big">'+n.birthDay+'</div><div style="font-size:11px;color:#7a6038;font-weight:700">'+bd.kw+'</div><div class="num-meaning">'+applyName(bd.desc.split('.')[0]+'.',nm)+' 박쌤이 태어난 날의 핵심 재능입니다.</div></div>'+
+    (ds?'<div class="num-card"><div class="num-lbl">🎯 운명수</div><div class="num-big">'+n.destiny+'</div><div style="font-size:11px;color:#7a6038;font-weight:700">'+ds.kw+'</div><div class="num-meaning">'+applyName(ds.desc.split('.')[0]+'.',nm)+' 박쌤이 살아가며 펼쳐 보일 운명의 길입니다.</div></div>':'')+
+    (su?'<div class="num-card"><div class="num-lbl">💎 영혼수</div><div class="num-big">'+n.soul+'</div><div style="font-size:11px;color:#7a6038;font-weight:700">'+su.kw+'</div><div class="num-meaning">'+applyName(su.desc.split('.')[0]+'.',nm)+' 박쌤이 깊은 곳에서 진정 원하는 것입니다.</div></div>':'')+
+    (pe?'<div class="num-card"><div class="num-lbl">🎭 인격수</div><div class="num-big">'+n.personality+'</div><div style="font-size:11px;color:#7a6038;font-weight:700">'+pe.kw+'</div><div class="num-meaning">'+applyName(pe.desc.split('.')[0]+'.',nm)+' 박쌤이 세상에 보여지는 모습입니다.</div></div>':'')+
+    '</div>');
+  // 생명수 상세
+  html+=sec('N1','생명수 '+n.lifePath+' 상세 풀이','박쌤의 인생 청사진',
+    '<div class="dark-card"><h3>🌟 '+nm+'님의 생명수 '+n.lifePath+' - '+lp.kw+'</h3><p>'+applyName(lp.desc,nm)+'</p></div>');
+  // 행운 정보
+  if(lucky){
+    html+=sec('N2','박쌤의 행운 부적','생명수 '+n.lifePath+' 기반 길한 색·요일·보석',
+      '<div class="lucky-pad"><h4>✨ '+nm+'님의 행운 가이드</h4>'+
+      '<div class="lucky-row"><span>🎨 행운의 색</span><span>'+lucky.color+'</span></div>'+
+      '<div class="lucky-row"><span>📆 행운의 요일</span><span>'+lucky.day+'</span></div>'+
+      '<div class="lucky-row"><span>💎 행운의 보석</span><span>'+lucky.gem+'</span></div>'+
+      '<div class="lucky-row"><span>🔢 핵심 숫자</span><span>'+n.lifePath+', '+(n.lifePath*2)%9+', '+(n.lifePath*3)%9+'</span></div>'+
+      '</div>');
+  }
+  return html;
+}
+
+// ───── 점성술 ─────
+function buildAstroPane(){
+  var d=$data,nm=d.name,s=d.sun;
+  var html='';
+  html+=sec('A0','태양궁 '+s.n+' '+s.em,'박쌤의 태양 별자리 ('+s.sd[0]+'/'+s.sd[1]+'~'+s.ed[0]+'/'+s.ed[1]+')',
+    '<table class="info-table">'+
+    '<tr><th>지배 행성</th><td>'+s.rule+'</td></tr>'+
+    '<tr><th>키워드</th><td>'+s.kw+'</td></tr>'+
+    '<tr><th>영문</th><td>'+s.e+'</td></tr>'+
+    '</table>'+
+    '<div class="dark-card"><h3>⭐ '+nm+'님의 태양 별자리</h3><p>'+applyName(s.desc,nm)+'</p></div>');
+  // 12하우스
+  var housesHTML='<div class="houses-grid">';
+  HOUSES.forEach(function(h,i){
+    housesHTML+='<div class="house-card"><div class="house-head"><div class="house-num">'+(i+1)+'</div><div><div class="house-name">'+h.n+'</div><div class="house-area">'+h.a+'</div></div></div><div class="house-desc">'+applyName(h.d,nm)+'</div></div>';
+  });
+  housesHTML+='</div>';
+  html+=sec('A1','12하우스 풀이','박쌤의 천궁도가 비추는 12가지 인생 영역',housesHTML);
+  // 궁합
+  var compatGood={염소자리:['황소자리','처녀자리'],물병자리:['쌍둥이자리','천칭자리'],물고기자리:['게자리','전갈자리'],양자리:['사자자리','사수자리'],황소자리:['처녀자리','염소자리'],쌍둥이자리:['천칭자리','물병자리'],게자리:['전갈자리','물고기자리'],사자자리:['양자리','사수자리'],처녀자리:['황소자리','염소자리'],천칭자리:['쌍둥이자리','물병자리'],전갈자리:['게자리','물고기자리'],사수자리:['양자리','사자자리']};
+  var good=compatGood[s.n]||[];
+  html+=sec('A2','별자리 궁합','박쌤과 잘 맞는 별자리',
+    '<div class="warm-card"><h3>💕 '+nm+'님과 잘 맞는 별자리</h3>'+
+    '<p><strong>최고의 궁합</strong>: '+good.join(', ')+' - 박쌤과 같은 원소 그룹으로 깊은 공감대를 만듭니다.</p>'+
+    '<p><strong>도전적 인연</strong>: 박쌤의 반대 원소 별자리는 처음엔 부딪히지만 서로를 성장시키는 거울이 됩니다.</p></div>');
+  return html;
+}
+
+// ───── Q&A ─────
+function buildQAPane(){
+  var d=$data,nm=d.name;
+  var html='';
+  html+=sec('Q0','자유 질문 + 16개 토픽','박쌤의 궁금한 점을 운명의 언어로 풀어드립니다',
+    '<div class="qa-input-box"><h4>💬 직접 질문하기</h4>'+
+    '<div class="qa-input-row"><input class="qa-input" id="qa-free" type="text" placeholder="예: 올해 이직해도 좋을까요?"><button class="qa-ask-btn" id="qa-ask">✨ 풀이 보기</button></div>'+
+    '<div class="qa-examples">예시 질문 (클릭): '+
+    ['올해 이직해도 될까요','연말까지 좋은 인연이 올까요','자녀가 잘 자랄까요','이사 가도 좋을까요','새 사업 시작해도 될까요'].map(function(q){return '<span class="qa-tag" data-q="'+q+'">'+q+'</span>';}).join('')+
+    '</div></div>'+
+    '<div class="qa-grid" id="qa-grid"></div>'+
+    '<div id="qa-answer-box"></div>');
+  return html;
+}
+
+// ════════════════════════════════════════════════════════
+// 타로 인터랙션
+// ════════════════════════════════════════════════════════
+var TAROT_DECK=null,TAROT_MODE=1,TAROT_PICKS=[];
+function shuffleDeck(){
+  TAROT_DECK=TAROT.slice();
+  for(var i=TAROT_DECK.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=TAROT_DECK[i];TAROT_DECK[i]=TAROT_DECK[j];TAROT_DECK[j]=t;}
+  TAROT_PICKS=[];
+}
+function renderTarotBoard(){
+  shuffleDeck();
+  var html='';
+  // 27장(또는 21장) 카드 뒷면 펼치기
+  var count=21;
+  for(var i=0;i<count;i++){
+    html+='<div class="card-back" data-idx="'+i+'"></div>';
+  }
+  document.getElementById('tarot-board').innerHTML=html;
+  document.getElementById('tarot-result').innerHTML='';
+  document.querySelectorAll('#tarot-board .card-back').forEach(function(el){
+    el.addEventListener('click',function(){
+      if(TAROT_PICKS.length>=TAROT_MODE)return;
+      var idx=parseInt(this.getAttribute('data-idx'),10);
+      this.classList.add('picked');
+      // 이미 뽑은 인덱스는 제외
+      var available=TAROT_DECK.filter(function(c,i){return TAROT_PICKS.indexOf(i)<0;});
+      var card=available[Math.floor(Math.random()*available.length)];
+      var realIdx=TAROT_DECK.indexOf(card);
+      TAROT_PICKS.push(realIdx);
+      var rev=Math.random()<0.4;
+      renderTarotResult(card,rev);
+      if(TAROT_PICKS.length>=TAROT_MODE)renderTarotInterp();
+    });
+  });
+}
+function renderTarotResult(card,rev){
+  var box=document.getElementById('tarot-result');
+  if(!box._spread){
+    box.innerHTML='<div class="tarot-spread t'+TAROT_MODE+'" id="t-spread"></div>';
+    box._spread=true;
+  }
+  var positions=TAROT_MODE===3?['과거','현재','미래']:(TAROT_MODE===5?['현재','장애','조언','과거','미래']:['현재']);
+  var pos=positions[TAROT_PICKS.length-1]||'';
+  var spread=document.getElementById('t-spread');
+  var dirCls=rev?'rev':'up';
+  var dirLbl=rev?'역방향':'정방향';
+  var meaning=rev?card.rev:card.up;
+  var msg=rev?card.revMsg:card.msg;
+  var sym=rev?'<span style="display:inline-block;transform:rotate(180deg)">'+card.sym+'</span>':card.sym;
+  var html='<div class="tcard"><div class="tc-pos">'+pos+'</div><div class="tc-sym">'+sym+'</div><div class="tc-name">'+card.n+'</div><div class="tc-en">'+card.e+'</div><div class="tc-dir '+dirCls+'">'+dirLbl+'</div><div class="tc-meaning">'+meaning+'</div></div>';
+  spread.innerHTML+=html;
+  // 박쌤 메시지를 임시 저장
+  if(!box._msgs)box._msgs=[];
+  box._msgs.push({pos:pos,card:card,rev:rev,msg:msg,meaning:meaning});
+}
+function renderTarotInterp(){
+  var box=document.getElementById('tarot-result');
+  var msgs=box._msgs||[];
+  var q=document.getElementById('tarot-q').value.trim();
+  var nm=$data.name;
+  var html='<div class="tarot-interp" style="margin-top:14px"><h4>🌟 '+nm+'님께 드리는 박쌤의 타로 풀이</h4>';
+  if(q)html+='<p><strong>질문</strong>: "'+q+'"</p>';
+  msgs.forEach(function(m){
+    html+='<p><strong>['+m.pos+'] '+m.card.n+' '+(m.rev?'(역방향)':'(정방향)')+'</strong> - '+applyName(m.msg,nm)+'</p>';
+  });
+  if(TAROT_MODE===3){
+    html+='<p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(240,208,128,.3)">'+applyName('박쌤, 세 카드가 함께 보내는 메시지는 이렇습니다. 과거가 박쌤에게 남긴 자국이 현재 박쌤의 자리를 만들었고, 그 자리에서 박쌤이 어떻게 움직이느냐가 미래를 결정합니다. 카드는 정답이 아니라 거울입니다. ',nm)+'</p>';
+  }else if(TAROT_MODE===5){
+    html+='<p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(240,208,128,.3)">'+applyName('박쌤, 다섯 카드가 만드는 V자는 박쌤의 현재 위치(중앙)와, 그 양옆의 장애와 조언, 그리고 과거에서 미래로 흐르는 시간의 흐름을 함께 보여줍니다. 카드의 메시지를 하루 한 장씩 마음에 담아두세요.',nm)+'</p>';
+  }else{
+    html+='<p style="margin-top:10px">'+applyName('박쌤, 한 장의 카드는 지금 박쌤에게 가장 필요한 한마디입니다. 오늘 하루 이 메시지를 마음에 새기세요.',nm)+'</p>';
+  }
+  html+='</div>';
+  box.innerHTML+=html;
+}
+function initTarot(){
+  document.querySelectorAll('.tmode-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.tmode-btn').forEach(function(x){x.classList.remove('active');});
+      this.classList.add('active');
+      TAROT_MODE=parseInt(this.getAttribute('data-mode'),10);
+      renderTarotBoard();
+    });
+  });
+  document.getElementById('reshuffle-btn').addEventListener('click',renderTarotBoard);
+  renderTarotBoard();
+}
+
+// ════════════════════════════════════════════════════════
+// Q&A 시스템
+// ════════════════════════════════════════════════════════
+var QA_TOPICS=[
+  {id:'wealth',ic:'💰',t:'재물운',s:'재물 흐름'},
+  {id:'job',ic:'💼',t:'직장운',s:'이직·승진'},
+  {id:'biz',ic:'🏪',t:'사업운',s:'창업·확장'},
+  {id:'marriage',ic:'💒',t:'결혼운',s:'배우자'},
+  {id:'love',ic:'💕',t:'연애운',s:'이성·연인'},
+  {id:'children',ic:'👶',t:'자녀운',s:'자녀 운'},
+  {id:'parents',ic:'👨‍👩‍👧',t:'부모운',s:'부모 관계'},
+  {id:'study',ic:'📚',t:'학업운',s:'시험·공부'},
+  {id:'move',ic:'🚚',t:'이사운',s:'이사·방향'},
+  {id:'realestate',ic:'🏡',t:'부동산',s:'매매·투자'},
+  {id:'overseas',ic:'✈️',t:'해외운',s:'유학·이민'},
+  {id:'health',ic:'🩺',t:'건강운',s:'몸·정신'},
+  {id:'relation',ic:'🤝',t:'대인관계',s:'동료·친구'},
+  {id:'lawsuit',ic:'⚖️',t:'송사·소송',s:'법적 문제'},
+  {id:'thisyear',ic:'📅',t:'2026 한해',s:'올해 종합'},
+  {id:'next3y',ic:'🔮',t:'3년 흐름',s:'중기 전망'}
+];
+function initQA(){
+  var grid=document.getElementById('qa-grid');
+  var html='';
+  QA_TOPICS.forEach(function(t){
+    html+='<div class="qa-card" data-tid="'+t.id+'"><div class="qa-card-icon">'+t.ic+'</div><div class="qa-card-title">'+t.t+'</div><div class="qa-card-sub">'+t.s+'</div></div>';
+  });
+  grid.innerHTML=html;
+  document.querySelectorAll('.qa-card').forEach(function(c){
+    c.addEventListener('click',function(){
+      document.querySelectorAll('.qa-card').forEach(function(x){x.classList.remove('active');});
+      this.classList.add('active');
+      var id=this.getAttribute('data-tid');
+      var topic=QA_TOPICS.find(function(t){return t.id===id;});
+      var ans=getQAAnswer(id,topic);
+      document.getElementById('qa-answer-box').innerHTML='<div class="qa-answer">'+ans+'</div>';
+      window.scrollTo({top:document.getElementById('qa-answer-box').offsetTop-60,behavior:'smooth'});
+    });
+  });
+  document.getElementById('qa-ask').addEventListener('click',function(){
+    var q=document.getElementById('qa-free').value.trim();
+    if(!q){alert('질문을 입력해주세요');return;}
+    var ans=getFreeAnswer(q);
+    document.getElementById('qa-answer-box').innerHTML='<div class="qa-answer">'+ans+'</div>';
+    window.scrollTo({top:document.getElementById('qa-answer-box').offsetTop-60,behavior:'smooth'});
+  });
+  document.querySelectorAll('.qa-tag').forEach(function(t){
+    t.addEventListener('click',function(){
+      document.getElementById('qa-free').value=this.getAttribute('data-q');
+    });
+  });
+}
+function getQAAnswer(id,topic){
+  var d=$data,nm=d.name;
+  var ig=ILGAN_DATA[d.dp.stem];
+  var elem=d.elem;
+  var sortedEl=Object.keys(elem).sort(function(a,b){return elem[b]-elem[a];});
+  var strong=sortedEl[0],weak=sortedEl[4];
+  var ts=getTenStar(d.dp.stem,d.yearF.stem);
+  var head='<div class="dark-card"><h3>'+topic.ic+' '+topic.t+' - '+nm+'님께</h3>';
+  var body='';
+  if(id==='wealth'){
+    body='<p>'+applyName('박쌤, '+ig.n+' 일간의 재물 결은 '+ig.wealth+' 박쌤의 사주 오행 중 강한 기운은 <strong>'+strong+'</strong>, 약한 기운은 <strong>'+weak+'</strong>입니다. 재성과 식상이 활발한 시기에 큰 수익이 들어옵니다.',nm)+'</p>'+
+    '<p>2026년 세운 '+d.yearF.stem+d.yearF.branch+'은 박쌤에게 <strong>'+ts+'</strong>으로 작용합니다. '+STAR_DESC[ts]+'.</p>'+
+    '<p><strong>핵심 조언</strong>: 박쌤의 일간 '+d.dp.stem+'은 '+EL_GEN[S_ELEM[STEMS.indexOf(d.dp.stem)]]+' 방향으로 돈이 흐릅니다. 그 분야에 작은 시드를 분산 배치하세요.</p>';
+  } else if(id==='job'){
+    body='<p>'+applyName('박쌤은 '+ig.n+' 일간이라 '+ig.job+'에서 가장 빛납니다. 박쌤의 십성 구성상 ',nm)+(d.elem.금+d.elem.수>d.elem.목+d.elem.화?'관성(직장)이 안정적입니다.':'식상(자기 주도 활동)이 강합니다.')+'</p>'+
+    '<p>2026년 세운은 '+ts+'이 작용해, '+(ts==='정관'||ts==='편관'?'직장·승진의 기운이 강합니다. 이직보다 자리 안에서 인정받는 게 길합니다.':ts==='정재'||ts==='편재'?'재성 운이라 이직·전직보다 활동 확장이 길합니다.':'창의·표현이 활발한 해라 본인 색깔을 분명히 드러내세요.')+'</p>'+
+    '<p><strong>2026 추천 월</strong>: '+d.monthly.filter(function(m){return m.rating>=4;}).slice(0,3).map(function(m){return m.month+'월';}).join('·')+'에 직장 이슈 결정을 권합니다.</p>';
+  } else if(id==='biz'){
+    body='<p>'+applyName('박쌤의 사업 결은 일간 '+d.dp.stem+'과 월지 '+d.mp.branch+'에 담겨 있습니다. ',nm)+(d.elem.토+d.elem.금>=8?'안정 자산·전통 분야가 길합니다.':'창의·콘텐츠·서비스 분야가 길합니다.')+'</p>'+
+    '<p>박쌤의 <strong>일간 '+ig.n+'</strong>은 '+ig.job.split('·')[0]+' 계열 사업과 결이 맞습니다. 2026년은 '+ts+'이라 '+(ts==='편재'?'사업 확장에 최적의 한 해입니다.':ts==='정재'?'안정적 운영이 길합니다.':ts==='편관'?'무리한 확장보다 내실을 다지세요.':'본업 강화의 해입니다.')+'</p>';
+  } else if(id==='marriage'){
+    var marAge=d.input.gender==='M'?'28~36세':'27~34세';
+    body='<p>'+applyName('박쌤의 결혼 결은 '+ig.n+' 일간에서 시작됩니다. ',nm)+applyName(ig.love,nm)+'</p>'+
+    '<p>박쌤의 결혼 적기는 사주상 '+marAge+'에 집중되어 있습니다. 일지 '+d.dp.branch+'은 박쌤의 배우자 자리이며, '+(d.elem.화>=d.elem.수?'따뜻하고 활달한 분':'차분하고 깊은 분')+'과의 인연이 맞습니다.</p>'+
+    '<p><strong>2026 결혼 운</strong>: '+(ts==='정재'||ts==='편재'||ts==='정관'||ts==='편관'?'관성·재성 작용으로 결혼·진지한 관계 발전의 해입니다.':'평이한 흐름, 천천히 인연을 가꾸세요.')+'</p>';
+  } else if(id==='love'){
+    body='<p>'+applyName('박쌤은 '+ig.n+', '+ig.love,nm)+'</p>'+
+    '<p>박쌤의 매력 포인트는 '+(d.ssal.dohwa.where.length?'도화살이 있어 자연스러운 매력':'화려함보다 진중한 깊이')+'입니다. 박쌤의 사주에 도화('+d.ssal.dohwa.val+')가 '+(d.ssal.dohwa.where.length?'있어 인기 운이 강합니다.':'없어 차분한 인연 운입니다.')+'</p>'+
+    '<p><strong>2026 인연 좋은 달</strong>: '+d.monthly.filter(function(m){return m.love.indexOf('인기')>=0||m.love.indexOf('만남')>=0;}).slice(0,3).map(function(m){return m.month+'월';}).join(' / ')+'</p>';
+  } else if(id==='children'){
+    body='<p>'+applyName('박쌤의 자녀 운은 사주의 식상(食傷) 자리에서 봅니다. ',nm)+(d.elem.화+d.elem.토>=8&&d.dp.stem.match(/[갑을병정]/)?'자녀와의 인연이 풍성한 사주':'자녀에게 정성을 쏟는 만큼 깊이 자라는 사주')+'입니다.</p>'+
+    '<p>'+(d.input.gender==='F'?'여성 사주에서 자녀는 식상으로, ':'남성 사주에서 자녀는 관성으로, ')+'박쌤의 사주에서는 '+(d.elem.화>=4||d.elem.토>=4?'활달하고 표현이 풍부한 자녀':'사색이 깊고 차분한 자녀')+'와 인연이 강합니다.</p>'+
+    '<p>2026년은 자녀에게 '+(ts==='식신'?'표현·재능 발휘의 해':ts==='상관'?'창의·변화의 해':'평이한 성장의 해')+'입니다.</p>';
+  } else if(id==='parents'){
+    body='<p>'+applyName('박쌤의 부모 자리는 년주('+d.yp.stem+d.yp.branch+')와 월주('+d.mp.stem+d.mp.branch+')에 담깁니다. ',nm)+'년주는 조상·부친 자리, 월주는 부모·가정의 자리입니다.</p>'+
+    '<p>박쌤의 사주는 부모와 '+(d.elem.토>=4||d.elem.목>=4?'정서적 유대가 깊은 결':'독립적인 결')+'을 가집니다. 부모님과의 관계에서 박쌤이 해야 할 일은 '+(ig.n.indexOf('목')>=0?'스스로 단단해지면서도 뿌리를 잊지 않는 것':'안정과 책임을 함께 챙기는 것')+'입니다.</p>';
+  } else if(id==='study'){
+    body='<p>'+applyName('박쌤의 학업 운은 인성(印星) 자리에서 봅니다. ',nm)+(d.elem.수+d.elem.목>=8?'박쌤은 학문과 깊이 있는 공부에 천부적입니다.':'박쌤은 실용적이고 응용 가능한 공부가 잘 맞습니다.')+'</p>'+
+    '<p>2026년 세운은 박쌤에게 '+ts+' 작용이라, '+(ts==='정인'||ts==='편인'?'공부·자격증·연구에 최적의 해입니다.':ts==='식신'||ts==='상관'?'배운 것을 표현하고 응용하는 해입니다.':'꾸준한 학습이 답인 해입니다.')+'</p>';
+  } else if(id==='move'){
+    body='<p>'+applyName('박쌤의 이사 운은 역마살과 월지·일지에서 봅니다. ',nm)+(d.ssal.yeokma.where.length?'박쌤은 역마('+d.ssal.yeokma.val+')가 있어 이동·변화의 기운이 강합니다.':'박쌤은 큰 역마가 없어 정착의 결이 강합니다.')+'</p>'+
+    '<p>2026년 이사·이동이 좋은 달은 '+d.monthly.filter(function(m){return m.move.indexOf('이동')>=0&&m.rating>=3;}).slice(0,3).map(function(m){return m.month+'월';}).join(' / ')+'입니다.</p>';
+  } else if(id==='realestate'){
+    body='<p>'+applyName('박쌤의 부동산 운은 사주 토(土) 기운과 정재에서 봅니다. ',nm)+(d.elem.토>=4?'박쌤은 부동산과 결이 잘 맞아 장기 보유 시 좋은 결과를 만듭니다.':'박쌤은 부동산보다 유동 자산이 더 잘 맞을 수 있습니다.')+'</p>'+
+    '<p>2026 부동산 거래는 '+(ts==='정재'?'안정적 매매가 길합니다.':ts==='편재'?'단기 매매·투자 기회가 옵니다.':'관망이 답입니다.')+'</p>';
+  } else if(id==='overseas'){
+    body='<p>'+applyName('박쌤의 해외 운은 역마와 월지·시지에서 봅니다. ',nm)+(d.ssal.yeokma.where.length?'박쌤에게 역마가 있어 해외 활동·이주 운이 열려 있습니다.':'박쌤에게 큰 역마는 없지만 본인이 결심하면 가능한 흐름입니다.')+'</p>'+
+    '<p>'+(d.elem.수>=4?'특히 수(水)가 강해 해외 무역·유학 운이 깊습니다.':'유학·해외 진출은 신중하게 준비하는 게 길합니다.')+'</p>';
+  } else if(id==='health'){
+    body='<p>'+applyName('박쌤의 건강 결은 일간 '+ig.n+'에서 시작합니다. ',nm)+applyName(ig.health,nm)+'</p>'+
+    '<p>박쌤의 약한 오행은 <strong>'+weak+'</strong>입니다. '+weak+' 기운을 보충하는 음식·습관·환경이 박쌤에게 회복을 줍니다.</p>'+
+    '<p>2026년 특히 조심할 달은 '+d.monthly.filter(function(m){return m.health.indexOf('무리')>=0||m.health.indexOf('스트레스')>=0;}).slice(0,2).map(function(m){return m.month+'월';}).join(', ')+'입니다.</p>';
+  } else if(id==='relation'){
+    body='<p>'+applyName('박쌤의 대인관계 결은 비견·겁재 자리와 일간의 강약에서 봅니다. ',nm)+(d.strength.indexOf('강')>=0?'박쌤은 자기 색깔이 분명해 동료와 약간의 마찰이 있을 수 있습니다.':'박쌤은 부드럽고 협력적이라 동료 관계가 길합니다.')+'</p>'+
+    '<p>2026년 박쌤에게 가장 좋은 사람은 박쌤의 약한 오행 <strong>'+weak+'</strong>을 보완해주는 사람입니다. 그런 결을 가진 동료·친구를 가까이 두세요.</p>';
+  } else if(id==='lawsuit'){
+    body='<p>'+applyName('박쌤의 송사 운은 관성과 편관, 충(沖)에서 봅니다. ',nm)+(d.elem.금>=5?'관성이 강해 법적 분쟁 시에도 박쌤의 정당함이 인정받기 쉽습니다.':'박쌤은 분쟁 회피가 더 길합니다. 중재·합의를 우선하세요.')+'</p>'+
+    '<p>2026 세운이 '+(ts==='편관'?'편관이라 갈등 가능성이 있으니 계약·서류는 두 번 확인하세요.':'평이하므로 큰 송사는 없을 것입니다.')+'</p>';
+  } else if(id==='thisyear'){
+    var good=d.monthly.filter(function(m){return m.rating>=4;});
+    var bad=d.monthly.filter(function(m){return m.rating<=2;});
+    body='<p>'+applyName('박쌤, 2026년 '+d.yearF.stem+d.yearF.branch+'년은 박쌤에게 '+ts+' 작용의 해입니다. '+STAR_DESC[ts]+'.',nm)+'</p>'+
+    '<p><strong>가장 좋은 월</strong>: '+good.map(function(m){return m.month+'월';}).join('·')+(good.length?'':' (전반적으로 평이한 해)')+'</p>'+
+    '<p><strong>조심할 월</strong>: '+(bad.length?bad.map(function(m){return m.month+'월';}).join('·'):'특별히 큰 흉월은 없습니다')+'</p>'+
+    '<p><strong>한 해 키워드</strong>: '+STAR_DESC[ts].split('.')[0]+'</p>';
+  } else if(id==='next3y'){
+    var yrs=[];
+    for(var i=0;i<3;i++){
+      var yy=d.curYear+i,yf=getYearFortune(yy),yts=getTenStar(d.dp.stem,yf.stem);
+      yrs.push({y:yy,gj:yf.stem+yf.branch,ts:yts});
+    }
+    body='<p>'+applyName('박쌤의 향후 3년 흐름을 봅니다.',nm)+'</p>';
+    yrs.forEach(function(y){
+      body+='<p><strong>'+y.y+'년 ('+y.gj+', '+y.ts+')</strong>: '+STAR_DESC[y.ts]+'.</p>';
+    });
+    body+='<p style="margin-top:10px">세 해의 흐름을 종합하면, 박쌤의 인생에 '+yrs[0].ts.charAt(0)+'·'+yrs[1].ts.charAt(0)+'·'+yrs[2].ts.charAt(0)+' 기운이 차례로 흐릅니다. 큰 그림에서 박쌤의 자리를 만드는 시기입니다.</p>';
+  }
+  return head+body+'</div>';
+}
+function getFreeAnswer(q){
+  var d=$data,nm=d.name;
+  var ig=ILGAN_DATA[d.dp.stem];
+  var ts=getTenStar(d.dp.stem,d.yearF.stem);
+  // 키워드 매칭
+  var keywords={
+    이직:'job',이전:'job',퇴사:'job',전직:'job',승진:'job',직장:'job',
+    결혼:'marriage',배우자:'marriage',
+    연애:'love',사랑:'love',인연:'love',이성:'love',
+    돈:'wealth',재물:'wealth',월급:'wealth',수익:'wealth',투자:'wealth',
+    사업:'biz',창업:'biz',
+    자녀:'children',아이:'children',아기:'children',출산:'children',
+    이사:'move',이주:'move',
+    부동산:'realestate',집:'realestate',매매:'realestate',아파트:'realestate',
+    해외:'overseas',유학:'overseas',이민:'overseas',
+    공부:'study',시험:'study',학업:'study',합격:'study',
+    건강:'health',
+    부모:'parents',어머니:'parents',아버지:'parents',
+    소송:'lawsuit',법적:'lawsuit',
+    올해:'thisyear','2026':'thisyear'
+  };
+  var matched=null;
+  for(var k in keywords){if(q.indexOf(k)>=0){matched=keywords[k];break;}}
+  if(matched){
+    var topic=QA_TOPICS.find(function(t){return t.id===matched;});
+    var ans=getQAAnswer(matched,topic);
+    return '<div class="warm-card"><p><strong>박쌤이 박쌤의 질문 "'+q+'"을 가장 가까운 토픽 [<strong>'+topic.t+'</strong>]으로 풀어드립니다.</strong></p></div>'+ans;
+  }
+  // 매칭 안 되는 자유 질문
+  return '<div class="dark-card"><h3>💬 박쌤의 자유 풀이</h3>'+
+    '<p><strong>질문</strong>: "'+q+'"</p>'+
+    '<p>'+applyName('박쌤, 박쌤이 던진 질문은 박쌤의 사주가 가진 결을 통해 이렇게 풀립니다.',nm)+'</p>'+
+    '<p>박쌤의 일간 '+ig.n+'은 "'+ig.kw+'"의 결이라, 박쌤이 이 질문을 던지셨다는 것 자체가 박쌤 안에 답의 실마리가 있다는 뜻입니다. '+ig.nature+'</p>'+
+    '<p>2026년 세운은 박쌤에게 <strong>'+ts+'</strong> 작용이라, '+STAR_DESC[ts]+'의 키워드로 답이 옵니다. 박쌤의 본성이 시키는 방향과 올해의 운세 방향이 만나는 자리, 거기에 박쌤의 답이 있습니다.</p>'+
+    '<p style="margin-top:10px;font-size:12px;opacity:.7">더 구체적인 풀이를 원하시면 위의 16개 토픽 중 가장 가까운 것을 클릭해 보세요.</p>'+
+  '</div>';
+}
+
+// ════════════════════════════════════════════════════════
+// 이벤트 핸들러
+// ════════════════════════════════════════════════════════
+var $cal='solar',$gender='F';
+document.getElementById('btn-solar').addEventListener('click',function(){$cal='solar';this.classList.add('active');document.getElementById('btn-lunar').classList.remove('active');document.getElementById('lbl-date').textContent='생년월일 (양력)';});
+document.getElementById('btn-lunar').addEventListener('click',function(){$cal='lunar';this.classList.add('active');document.getElementById('btn-solar').classList.remove('active');document.getElementById('lbl-date').textContent='생년월일 (음력)';});
+document.getElementById('gbtn-M').addEventListener('click',function(){$gender='M';this.classList.add('selected');document.getElementById('gbtn-F').classList.remove('selected');});
+document.getElementById('gbtn-F').addEventListener('click',function(){$gender='F';this.classList.add('selected');document.getElementById('gbtn-M').classList.remove('selected');});
+
+document.getElementById('submit-btn').addEventListener('click',function(){
+  var nm=document.getElementById('f-name').value.trim();
+  var y=parseInt(document.getElementById('f-year').value,10);
+  var m=parseInt(document.getElementById('f-month').value,10);
+  var d=parseInt(document.getElementById('f-day').value,10);
+  var h=parseInt(document.getElementById('f-hour').value,10);
+  if(isNaN(y)||y<1930||y>2010){alert('년도를 1930~2010 사이로 입력해주세요');return;}
+  if(isNaN(m)||m<1||m>12){alert('월을 1~12로 입력해주세요');return;}
+  if(isNaN(d)||d<1||d>31){alert('일을 1~31로 입력해주세요');return;}
+  var input={name:nm,year:y,month:m,day:d,hour:isNaN(h)?-1:h,gender:$gender,cal:$cal};
+  document.getElementById('pg-input').style.display='none';
+  document.getElementById('pg-loading').style.display='flex';
+  // 단계별 로딩 애니메이션
+  var steps=document.querySelectorAll('.step-item');
+  steps.forEach(function(s){s.classList.remove('done');});
+  var idx=0;
+  var iv=setInterval(function(){
+    if(idx>=steps.length){
+      clearInterval(iv);
+      setTimeout(function(){showResult(input);},300);
+      return;
+    }
+    steps[idx].classList.add('done');
+    idx++;
+  },300);
+});
+document.getElementById('back-btn').addEventListener('click',function(){
+  document.getElementById('pg-result').style.display='none';
+  document.getElementById('pg-input').style.display='flex';
+  window.scrollTo(0,0);
+});
+document.getElementById('print-btn').addEventListener('click',function(){window.print();});
+</script>
+</body>
+</html>
