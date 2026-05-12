@@ -1139,6 +1139,7 @@ function buildMonthlyFortune(daySt,year){
     var ts=getTenStar(daySt,m.stem);
     var me=S_ELEM[STEMS.indexOf(m.stem)];
     var be=B_ELEM[BRANCHES.indexOf(m.branch)];
+    var gj=m.stem+m.branch;
     // 길흉 강도 (별점)
     var rating=3;
     var helpful=['식신','정재','정관','정인','상관','편재'];
@@ -1146,12 +1147,11 @@ function buildMonthlyFortune(daySt,year){
     if(helpful.indexOf(ts)>=0)rating=4;
     if(ts==='정인'||ts==='정재'||ts==='식신')rating=4;
     if(caution.indexOf(ts)>=0)rating=2;
-    // 일간 강약에 따라 보정
     if(EL_GEN_R[de]===me||me===de)rating=Math.min(5,rating+1);
     if(EL_CTR_R[de]===me)rating=Math.max(1,rating-1);
     result.push({
       month:m.monthNum,label:m.label,dates:m.dates,
-      ganji:m.stem+m.branch,stem:m.stem,branch:m.branch,
+      ganji:gj,stem:m.stem,branch:m.branch,
       tenStar:ts,monthElem:me,branchElem:be,
       rating:rating,
       wealth:genMonthWealth(ts,me,de,rating),
@@ -1161,7 +1161,7 @@ function buildMonthlyFortune(daySt,year){
       child:genMonthChild(ts,me,de),
       health:genMonthHealth(de,me,be,ts),
       warn:genMonthWarn(ts,me,de,rating),
-      summary:genMonthSummary(m.monthNum,ts,rating,m.ganji)
+      summary:genMonthSummary(m.monthNum,ts,rating,gj)
     });
   }
   return result;
@@ -1360,34 +1360,248 @@ function buildSummaryPane(){
   var d=$data,nm=d.name;
   var ig=ILGAN_DATA[d.dp.stem];
   var nlp=NUMERO_MEANING[d.numero.lifePath];
-  var ndlp=NUMERO_MEANING[d.numero.destiny]||null;
   var topMon=d.monthly.filter(function(m){return m.rating>=4;}).slice(0,3);
   var lowMon=d.monthly.filter(function(m){return m.rating<=2;}).slice(0,2);
+  var curDaeun=d.daeun.list.find(function(x){return d.curAge>=x.age&&d.curAge<=x.end;})||d.daeun.list[0];
+  var curDaeunTs=getTenStar(d.dp.stem,curDaeun.stem);
+  var yearTs=getTenStar(d.dp.stem,d.yearF.stem);
+  var lucky=NUMERO_LUCKY[d.numero.lifePath]||{color:'-',day:'-',gem:'-'};
+  var sortedEl=Object.keys(d.elem).sort(function(a,b){return d.elem[b]-d.elem[a];});
+  var weakEl=sortedEl[4];
+
   var html='';
-  // 핵심 요약
-  html+=sec('S1','네 가지 별의 핵심 요약','사주·점성·타로·수비학이 알려주는 [N의] 본질',
-    '<div class="dark-card"><h3>✦ [N님]의 다섯 줄 요약 ✦</h3>'+
-    '<p>'+applyName('① 사주: [N은] <strong>'+ig.n+'</strong>의 결을 타고난 분, "'+ig.kw+'"가 [N의] 핵심 키워드입니다.',nm)+'</p>'+
-    '<p>② 점성: <strong>'+d.sun.em+' '+d.sun.n+'</strong> - "'+d.sun.kw+'"의 별을 가진 분, '+d.sun.rule+'이 [N을] 다스립니다.</p>'+
-    '<p>③ 수비학: 생명수 <strong>'+d.numero.lifePath+'</strong> - "'+nlp.kw+'"의 길을 걷는 사람입니다.</p>'+
-    '<p>④ 신살: '+(d.ssal.dohwa.where.length?'도화('+d.ssal.dohwa.val+')가 [N에게] 작용 - 매력과 인기.':'특별한 도화 없음 - 차분한 매력.')+'</p>'+
-    '<p>⑤ 운세 흐름: '+d.strength+' / 현재 대운 '+(d.daeun.list.find(function(x){return d.curAge>=x.age&&d.curAge<=x.end;})||d.daeun.list[0]).stem+(d.daeun.list.find(function(x){return d.curAge>=x.age&&d.curAge<=x.end;})||d.daeun.list[0]).branch+' / 2026 세운 '+d.yearF.stem+d.yearF.branch+'.</p>'+
-    '</div>'+
-    '<div class="warm-card"><h3>🌟 [N님]께 전하는 박쌤의 한마디</h3>'+
-    '<p>'+applyName('[N], [N이] 가진 별의 청사진은 정해진 운명이 아닙니다. ',nm)+applyName('[N이] 매일 어떤 선택을 하느냐에 따라 그 청사진은 완전히 다른 그림이 됩니다. ',nm)+'</p>'+
-    '<p>'+applyName('[N의] 사주는 <strong>'+ig.kw+'</strong>의 본성을, ',nm)+'점성술은 <strong>'+d.sun.kw+'</strong>의 별을, 수비학은 <strong>'+nlp.kw+'</strong>의 길을 알려줍니다. 네 가지가 한 방향을 가리키는 영역이 [N이] 가장 잘 풀리는 자리입니다.</p>'+
-    '<p>'+applyName('이 보고서는 [N의] 인생 GPS입니다. ',nm)+'다음 탭들을 천천히 둘러보시며 [N]만의 길을 찾아가세요.</p></div>');
-  // 2026 핵심 흐름
-  var topStr='';
-  topMon.forEach(function(m){topStr+='<li><strong>'+m.month+'월 ('+m.ganji+'월)</strong>: '+m.summary.split('이 한 달의 키워드')[0]+'</li>';});
-  var lowStr='';
-  lowMon.forEach(function(m){lowStr+='<li><strong>'+m.month+'월 ('+m.ganji+'월)</strong>: '+m.summary.split('이 한 달의 키워드')[0]+'</li>';});
-  html+=sec('S2','2026년 한 해 흐름 미리보기','12개월 상세는 [2026 월별] 탭에서',
-    '<div class="warm-card"><h3>📅 [N님]의 2026 핵심 월</h3>'+
-    (topStr?'<p><strong>✨ 가장 좋은 흐름</strong></p><ul style="padding-left:20px;font-size:13px;line-height:2">'+topStr+'</ul>':'')+
-    (lowStr?'<p style="margin-top:12px"><strong>⚠️ 조심스러운 시기</strong></p><ul style="padding-left:20px;font-size:13px;line-height:2">'+lowStr+'</ul>':'')+
+
+  // S1: 천명
+  html+=sec('S1','박쌤이 풀어드리는 [N의] 천명','네 가지 별이 알려주는 본질',
+    '<div class="dark-card"><h3>✦ 박쌤의 한마디</h3>'+
+    '<p>박쌤이 [N의] 사주·점성·타로·수비학을 모두 펼쳐 봤습니다. 네 가지 별이 한 방향을 가리키는데, 그 방향이 바로 [N의] 천명입니다.</p>'+
+    '<p>[N은] <strong>'+ig.n+' '+ig.em+'</strong> 일간으로, '+ig.kw+'의 결을 타고나셨습니다. 서양 점성술로 보면 <strong>'+d.sun.em+' '+d.sun.n+'</strong> - "'+d.sun.kw+'"의 별을 가졌고, 수비학으로 풀면 생명수 <strong>'+d.numero.lifePath+'</strong> - "'+nlp.kw+'"의 길을 걷는 사람입니다.</p>'+
+    '<p>이 세 가지가 만나는 자리에 [N의] 천명이 있습니다. '+fuseThreeSources(ig,d.sun,nlp)+'</p>'+
     '</div>');
+
+  // S2: 6대 키워드
+  var coreKeys=buildCoreKeywords(d);
+  var kwHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px">';
+  coreKeys.forEach(function(k){
+    kwHTML+='<div style="background:linear-gradient(135deg,#fef8e8,#fff5d8);border:1.5px solid #c9a84c;border-radius:12px;padding:14px;text-align:center;box-shadow:0 4px 10px rgba(201,168,76,.15)">'+
+      '<div style="font-size:24px;margin-bottom:6px">'+k.icon+'</div>'+
+      '<div style="font-size:12.5px;font-weight:700;color:#7d5a1e;margin-bottom:4px">'+k.label+'</div>'+
+      '<div style="font-size:11px;color:#5d4814;line-height:1.5">'+k.desc+'</div>'+
+    '</div>';
+  });
+  kwHTML+='</div>';
+  html+=sec('S2','[N의] 6대 핵심 키워드','박쌤이 뽑은 [N]만의 본질 요약',kwHTML);
+
+  // S3: 4대 강점
+  var strengths=buildStrengths(d);
+  var strHTML='<div class="warm-card"><h3>💪 [N의] 타고난 4대 강점</h3>';
+  strengths.forEach(function(s,i){
+    strHTML+='<p style="padding:10px 0;'+(i<strengths.length-1?'border-bottom:1px dashed #e8d4a0;':'')+'"><strong>'+(i+1)+'. '+s.title+'</strong><br><span style="font-size:13px;color:#5d4814;line-height:1.85">'+s.desc+'</span></p>';
+  });
+  strHTML+='</div>';
+  html+=sec('S3','[N]만의 4대 강점','박쌤이 발견한 [N의] 자산',strHTML);
+
+  // S4: 인생 과제
+  var tasks=buildLifeTasks(d);
+  var taskHTML='<div class="dark-card"><h3>📌 [N이] 챙기셔야 할 인생 과제</h3>';
+  tasks.forEach(function(t,i){
+    taskHTML+='<p style="padding:9px 0"><strong>과제 '+(i+1)+'. '+t.title+'</strong><br><span style="font-size:13px;line-height:1.9">'+t.desc+'</span></p>';
+  });
+  taskHTML+='</div>';
+  html+=sec('S4','[N의] 인생 과제 3가지','강점만큼 약점도 알아야 합니다',taskHTML);
+
+  // S5: 현재 위치
+  html+=sec('S5','[N의] 현재 위치 (대운 + 세운)','지금 [N이] 서 계신 자리',
+    '<div class="warm-card"><h3>🧭 박쌤이 본 지금 [N의] 자리</h3>'+
+    '<p>[N의] 현재 대운은 <strong>'+curDaeun.stem+curDaeun.branch+' ('+curDaeun.age+'~'+curDaeun.end+'세)</strong>, 십성으로는 <strong>'+curDaeunTs+'</strong> 작용입니다. 이 10년 동안 [N은] '+getDaeunMessage(curDaeunTs)+'</p>'+
+    '<p>2026년 세운은 <strong>'+d.yearF.stem+d.yearF.branch+' ('+yearTs+')</strong>입니다. 한 해 동안 [N에게] '+getYearMessage(yearTs)+'.</p>'+
+    '<p><strong>대운 + 세운의 만남</strong>: '+getDaeunYearFusion(curDaeunTs,yearTs)+'</p>'+
+    '</div>');
+
+  // S6: 사계절
+  var seasons=[
+    {n:'봄 (2~4월)',em:'🌸',ms:d.monthly.slice(0,3)},
+    {n:'여름 (5~7월)',em:'☀️',ms:d.monthly.slice(3,6)},
+    {n:'가을 (8~10월)',em:'🍂',ms:d.monthly.slice(6,9)},
+    {n:'겨울 (11~1월)',em:'❄️',ms:d.monthly.slice(9,12)}
+  ];
+  var seasonHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">';
+  seasons.forEach(function(s){
+    var avgRating=s.ms.reduce(function(sum,m){return sum+m.rating;},0)/s.ms.length;
+    var stars='★'.repeat(Math.round(avgRating))+'☆'.repeat(5-Math.round(avgRating));
+    var tones=s.ms.map(function(m){return m.month+'월('+m.tenStar+')';}).join(' · ');
+    seasonHTML+='<div style="background:#faf6ed;border:1.5px solid #e8d4a0;border-radius:12px;padding:14px">'+
+      '<div style="font-size:14.5px;font-weight:700;color:#1a0a3d;margin-bottom:6px">'+s.em+' '+s.n+' '+stars+'</div>'+
+      '<div style="font-size:11.5px;color:#9c8060;margin-bottom:8px">'+tones+'</div>'+
+      '<div style="font-size:12.5px;color:#5d4814;line-height:1.7">'+getSeasonMessage(s.ms)+'</div>'+
+    '</div>';
+  });
+  seasonHTML+='</div>';
+  html+=sec('S6','2026년 사계절 큰 흐름','12개월 상세는 [2026 월별] 탭에서',seasonHTML);
+
+  // S7: 핵심 월
+  var topStr='',lowStr='';
+  topMon.forEach(function(m){
+    var sumHead=m.summary.split('흐름입니다.')[0]+'흐름';
+    topStr+='<li><strong>'+m.month+'월 ('+m.ganji+'월, '+m.tenStar+')</strong>: '+sumHead+'</li>';
+  });
+  lowMon.forEach(function(m){
+    var sumHead=m.summary.split('흐름입니다.')[0]+'흐름';
+    lowStr+='<li><strong>'+m.month+'월 ('+m.ganji+'월, '+m.tenStar+')</strong>: '+sumHead+'</li>';
+  });
+  html+=sec('S7','2026 핵심 월 미리보기','특히 챙길 달',
+    '<div class="warm-card">'+
+    (topStr?'<p><strong>✨ 가장 좋은 흐름의 달</strong></p><ul style="padding-left:20px;font-size:13px;line-height:2.1">'+topStr+'</ul>':'')+
+    (lowStr?'<p style="margin-top:14px"><strong>⚠️ 조심스러운 시기</strong></p><ul style="padding-left:20px;font-size:13px;line-height:2.1">'+lowStr+'</ul>':'<p style="margin-top:14px"><strong>✓ 큰 흉월 없는 평이한 해입니다.</strong></p>')+
+    '</div>');
+
+  // S8: 향후 3년
+  var nextYearsHTML='<div class="dark-card"><h3>🔮 박쌤이 보는 향후 3년</h3>';
+  for(var i=0;i<3;i++){
+    var yy=d.curYear+i,yf=getYearFortune(yy),yts=getTenStar(d.dp.stem,yf.stem);
+    nextYearsHTML+='<p><strong>'+yy+'년 '+yf.stem+yf.branch+' ('+yts+')</strong>: '+STAR_DESC[yts]+'. '+get3YearVision(i,yts)+'</p>';
+  }
+  nextYearsHTML+='</div>';
+  html+=sec('S8','향후 3년 인생 큰 그림','박쌤이 본 중기 흐름',nextYearsHTML);
+
+  // S9: 행운 가이드
+  var directions={목:'동쪽',화:'남쪽',토:'중앙·남서',금:'서쪽',수:'북쪽'};
+  var foods={목:'녹색 채소·발효식품·신맛',화:'붉은 과일·쓴맛·따뜻한 차',토:'곡류·단호박·단맛',금:'흰색 음식·매운맛·견과류',수:'해조류·검은 식품·짠맛'};
+  var elemColor={목:'녹색·연두',화:'빨강·자주',토:'노랑·갈색',금:'흰색·은색',수:'검정·짙은 파랑'};
+  html+=sec('S9','[N의] 행운 가이드','색·숫자·방향·음식·요일·보석',
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'+
+    '<div class="warm-card" style="margin-top:0"><h3>🌟 수비학 기반</h3>'+
+    '<div class="lucky-row"><span>🎨 행운의 색</span><span>'+lucky.color+'</span></div>'+
+    '<div class="lucky-row"><span>📆 행운의 요일</span><span>'+lucky.day+'</span></div>'+
+    '<div class="lucky-row"><span>💎 행운의 보석</span><span>'+lucky.gem+'</span></div>'+
+    '<div class="lucky-row"><span>🔢 핵심 숫자</span><span>'+d.numero.lifePath+', '+d.numero.birthDay+'</span></div>'+
+    '</div>'+
+    '<div class="warm-card" style="margin-top:0"><h3>🌿 사주 오행 기반</h3>'+
+    '<div class="lucky-row"><span>💪 보충할 오행</span><span>'+EL_EMOJI[weakEl]+' '+weakEl+'</span></div>'+
+    '<div class="lucky-row"><span>🎨 보완 색</span><span>'+elemColor[weakEl]+'</span></div>'+
+    '<div class="lucky-row"><span>🧭 길한 방향</span><span>'+directions[weakEl]+'</span></div>'+
+    '<div class="lucky-row"><span>🍽️ 보완 음식</span><span>'+foods[weakEl]+'</span></div>'+
+    '</div>'+
+    '</div>');
+
   return html;
+}
+
+// 종합 헬퍼
+function fuseThreeSources(ig,sun,nlp){
+  return '사주의 "'+ig.kw+'", 점성의 "'+sun.kw+'", 수비학의 "'+nlp.kw+'" — 이 세 마디가 박쌤의 눈에는 한 사람의 본질로 모입니다. 결국 [N은] "'+ig.kw+'"의 뿌리 위에서 "'+sun.kw+'"의 색을 입고 "'+nlp.kw+'"의 길을 걷는 사람입니다.';
+}
+function buildCoreKeywords(d){
+  var ig=ILGAN_DATA[d.dp.stem];
+  var ts=getTenStar(d.dp.stem,d.yearF.stem);
+  var sortedEl=Object.keys(d.elem).sort(function(a,b){return d.elem[b]-d.elem[a];});
+  var strongEl=sortedEl[0];
+  return [
+    {icon:ig.em,label:ig.n.split(' ')[0],desc:ig.kw},
+    {icon:d.sun.em,label:d.sun.n,desc:d.sun.kw},
+    {icon:'🔢',label:'생명수 '+d.numero.lifePath,desc:NUMERO_MEANING[d.numero.lifePath].kw},
+    {icon:EL_EMOJI[strongEl],label:strongEl+'기 강함',desc:strongEl==='목'?'성장·확장':strongEl==='화'?'표현·열정':strongEl==='토'?'안정·중심':strongEl==='금'?'결단·원칙':'유연·통찰'},
+    {icon:'⚖️',label:d.strength,desc:d.strength.indexOf('강')>=0?'자기 주관 뚜렷':'섬세·협력적'},
+    {icon:'✨',label:'2026 '+ts,desc:STAR_DESC[ts].split('.')[0]}
+  ];
+}
+function buildStrengths(d){
+  var ig=ILGAN_DATA[d.dp.stem];
+  var nlp=NUMERO_MEANING[d.numero.lifePath];
+  var sortedEl=Object.keys(d.elem).sort(function(a,b){return d.elem[b]-d.elem[a];});
+  var strongEl=sortedEl[0];
+  var strengths=[
+    {title:ig.n.split(' ')[0]+' 일간의 핵심 자산',desc:'[N의] 일간 '+ig.n+'은 "'+ig.kw+'"입니다. '+ig.nature+' 박쌤이 보기에 이게 [N의] 가장 큰 무기입니다.'},
+    {title:d.sun.n+' × 생명수 '+d.numero.lifePath+' 시너지',desc:'[N의] 태양궁 '+d.sun.n+'("'+d.sun.kw+'")과 생명수 '+d.numero.lifePath+'("'+nlp.kw+'")이 만나, [N에게] 독특한 색을 만듭니다. 동양 사주의 토대 위에 서양 별과 숫자의 결이 더해진 사람은 흔치 않습니다.'}
+  ];
+  var elPower={목:'성장과 확장의 힘',화:'표현과 에너지의 힘',토:'중심과 포용의 힘',금:'결단과 원칙의 힘',수:'통찰과 유연의 힘'};
+  strengths.push({title:'오행 '+strongEl+'기 우세 - '+elPower[strongEl],desc:'[N의] 사주에 '+strongEl+'기('+EL_EMOJI[strongEl]+')가 가장 강합니다. '+elPower[strongEl]+'이 [N에게] 자연스럽게 흐릅니다. 이 결을 살리는 분야에서 [N은] 가장 빛납니다.'});
+  if(d.ssal.dohwa.where.length){
+    strengths.push({title:'도화살 - 사람을 끄는 매력',desc:'[N의] 사주에 도화('+d.ssal.dohwa.val+')가 들어 있어, [N은] 자기도 모르게 사람을 끄는 매력을 가집니다. 표현·예술·서비스 분야에서 큰 자산이 됩니다.'});
+  } else if(d.ssal.yeokma.where.length){
+    strengths.push({title:'역마살 - 움직일수록 빛난다',desc:'[N의] 사주에 역마('+d.ssal.yeokma.val+')가 있어, 한 자리에 묶이지 않고 움직일 때 운이 트입니다. 이동·해외·유통·기획 분야에 강점.'});
+  } else if(d.ssal.hwagae.where.length){
+    strengths.push({title:'화개살 - 깊이의 사람',desc:'[N의] 사주에 화개('+d.ssal.hwagae.val+')가 있어, 예술·철학·정신성에 천부적입니다. 깊이 파고드는 분야에서 강점.'});
+  } else if(d.ssal.yangin.where.length){
+    strengths.push({title:'양인살 - 강한 추진력',desc:'[N의] 사주에 양인('+d.ssal.yangin.val+')이 있어, 결단력과 추진력이 남다릅니다. 리더십을 발휘할 자리에서 빛납니다.'});
+  } else {
+    strengths.push({title:'균형 잡힌 사주',desc:'[N의] 사주는 특별한 신살에 치우치지 않은 균형형입니다. 한쪽으로 쏠리지 않아 어떤 분야든 적응이 빠른 강점이 있습니다.'});
+  }
+  return strengths;
+}
+function buildLifeTasks(d){
+  var ig=ILGAN_DATA[d.dp.stem];
+  var sortedEl=Object.keys(d.elem).sort(function(a,b){return d.elem[b]-d.elem[a];});
+  var weakEl=sortedEl[4];
+  var ilganShadow={
+    갑:'고집을 휘어짐으로 바꾸는 연습',을:'결정을 미루지 않는 연습',
+    병:'타오른 만큼 식는 시간 챙기기',정:'사람들 속에서 자신을 잃지 않기',
+    무:'변화에 둔감하지 않도록 열어두기',기:'베푸는 만큼 자신도 채우기',
+    경:'말로 표현하는 연습',신:'완벽주의 내려놓기',
+    임:'한 가지를 끝까지 파는 연습',계:'자기 통찰을 가시화하기'
+  };
+  var weakElTask={목:'유연성과 성장 마인드 보충',화:'표현·드러내기 훈련',토:'중심·안정감 다지기',금:'결단력·원칙 세우기',수:'통찰·휴식·내면 가꾸기'};
+  var tasks=[
+    {title:ig.n+' 일간의 그림자 다스리기',desc:ilganShadow[d.dp.stem]+'. 일간의 강점이 곧 약점이 됩니다. [N의] 자연스러운 결과는 반대 방향의 연습이 필요합니다.'},
+    {title:'약한 '+weakEl+'기('+EL_EMOJI[weakEl]+') 보충',desc:'[N의] 사주에 '+weakEl+'기가 부족합니다. '+weakElTask[weakEl]+'이 [N의] 평생 과제입니다. 이걸 의식적으로 채우면 큰 변화가 옵니다.'}
+  ];
+  if(d.strength.indexOf('강')>=0){
+    tasks.push({title:'신강의 과제 - 비우고 내보내기',desc:'[N은] 신강이라 에너지가 강합니다. 식상·재성으로 기운을 내보내는 활동(표현·일·사업·운동)을 꾸준히 하셔야 사주가 흐릅니다. 너무 안에 쌓으면 답답해집니다.'});
+  } else {
+    tasks.push({title:'신약의 과제 - 채우고 회복하기',desc:'[N은] 신약이라 에너지 회복이 우선입니다. 인성·비겁으로 채우는 활동(공부·휴식·동료·자기 시간)을 우선하세요. 너무 많이 내보내면 지칩니다.'});
+  }
+  return tasks;
+}
+function getDaeunMessage(ts){
+  var msgs={
+    비견:'동료·동업·자기 정체성을 강화하는 시기',겁재:'경쟁과 추진의 시기, 도전이 많음',
+    식신:'표현·돌봄·창의가 무르익는 시기',상관:'기존 틀을 깨고 자유롭게 펼치는 시기',
+    편재:'사업적 활동과 거래가 활발해지는 시기',정재:'안정과 실속을 다지는 시기',
+    편관:'강한 압박 속에서 단단해지는 시기',정관:'명예와 사회적 자리를 잡는 시기',
+    편인:'직관·연구·종교적 깊이가 더해지는 시기',정인:'배움과 문서·자격이 모이는 시기'
+  };
+  return (msgs[ts]||'평이한 흐름의 시기')+'입니다.';
+}
+function getYearMessage(ts){
+  var msgs={
+    비견:'동료·동업 관계가 활성화됩니다',겁재:'경쟁이 격해지고 추진력이 강해집니다',
+    식신:'표현·창의·먹복이 풍성한 해입니다',상관:'기존 틀을 깨는 시도가 빛납니다',
+    편재:'활동을 통한 큰 재물과 거래가 옵니다',정재:'안정적 수입과 실속이 차곡차곡 쌓입니다',
+    편관:'강한 압박과 도전이 있지만 단단해지는 해입니다',정관:'명예와 직장·공식 관계가 잘 풀립니다',
+    편인:'직관과 특수 분야 운이 강해집니다',정인:'공부·문서·계약·자격증 운이 강한 해입니다'
+  };
+  return msgs[ts]||'평이한 흐름이 이어집니다';
+}
+function getDaeunYearFusion(dts,yts){
+  if(dts===yts)return '대운과 세운의 십성이 같아 [N의] 흐름이 강하게 증폭됩니다. 한 방향으로 큰 결과를 만들 수 있는 한 해입니다.';
+  if((dts==='정관'&&yts==='정인')||(dts==='정인'&&yts==='정관'))return '관인상생 작용으로 명예와 학문이 함께 도와줍니다. 자격·승진·진학에 매우 길합니다.';
+  if((dts==='식신'&&(yts==='정재'||yts==='편재'))||(dts==='상관'&&(yts==='정재'||yts==='편재')))return '식상생재 작용으로 [N의] 표현과 활동이 재물로 이어집니다. 사업·창작 수익에 길합니다.';
+  if(dts==='편관'&&yts==='편관')return '편관 중첩으로 압박이 강합니다. 무리한 결정 보류, 건강 챙기기.';
+  return '대운 '+dts+'와 세운 '+yts+'의 만남은 [N에게] 두 가지 흐름을 동시에 가져옵니다. 큰 방향(대운)을 잃지 않으면서 한 해(세운)의 작은 변화를 활용하세요.';
+}
+function getSeasonMessage(monthArr){
+  var avgR=monthArr.reduce(function(s,m){return s+m.rating;},0)/monthArr.length;
+  var topTs=monthArr.map(function(m){return m.tenStar;});
+  var summary='';
+  if(avgR>=4)summary='박쌤이 보기에 매우 좋은 흐름의 계절입니다. ';
+  else if(avgR>=3)summary='평이한 흐름의 계절입니다. ';
+  else summary='조심스럽게 다스려야 하는 계절입니다. ';
+  var tsCnt={};
+  topTs.forEach(function(t){tsCnt[t]=(tsCnt[t]||0)+1;});
+  var dominantTs=Object.keys(tsCnt).sort(function(a,b){return tsCnt[b]-tsCnt[a];})[0];
+  summary+=STAR_DESC[dominantTs]+'의 기운이 주를 이룹니다.';
+  return summary;
+}
+function get3YearVision(idx,ts){
+  if(idx===0)return '지금 [N] 앞에 펼쳐지는 한 해의 흐름입니다.';
+  if(idx===1){
+    if(ts==='편관'||ts==='겁재')return '한 해 깊이 다스려야 할 도전이 있는 해입니다. 미리 준비하세요.';
+    if(ts==='정재'||ts==='정관'||ts==='정인')return '안정과 실속이 모이는 한 해입니다.';
+    return '[N의] 자리를 다지는 한 해입니다.';
+  }
+  if(ts==='식신'||ts==='상관')return '[N의] 표현과 창의가 결실로 맺히는 한 해입니다.';
+  if(ts==='편재'||ts==='정재')return '재물의 결실이 모이는 한 해입니다.';
+  return '세 해의 흐름이 한 자리로 모이는 한 해입니다.';
 }
 
 // ───── 사주 ─────
@@ -1415,11 +1629,41 @@ function buildSajuPane(){
     if(p===d.dp){pillarHTML+='<td style="background:#fff5d8;font-weight:700;color:#8b6914">일간</td>';return;}
     pillarHTML+='<td style="font-size:12px;color:#7a6038;font-weight:600">'+getTenStar(d.dp.stem,p.stem)+'</td>';
   });
+  pillarHTML+='</tr><tr><td>지장간</td>';
+  [d.hp,d.dp,d.mp,d.yp].forEach(function(p){
+    if(!p){pillarHTML+='<td>-</td>';return;}
+    var hidden=HIDDEN[p.branch]||[];
+    var hideTxt=hidden.map(function(h){
+      var ts=p===d.dp?(h===d.dp.stem?'(일간동)':getTenStar(d.dp.stem,h)):getTenStar(d.dp.stem,h);
+      return h+' '+ts.substring(0,2);
+    }).join('<br>');
+    pillarHTML+='<td style="font-size:10.5px;color:#7a6038;line-height:1.5">'+hideTxt+'</td>';
+  });
   pillarHTML+='</tr></tbody></table>';
-  html+=sec('1','사주 8글자','[N의] 운명을 이루는 네 기둥',
+  html+=sec('1','사주 8글자 + 지장간','[N의] 운명을 이루는 네 기둥과 숨은 십성',
     pillarHTML+
     '<div class="dark-card"><h3>일간 '+ig.n+' '+ig.em+' [N의] 본성</h3>'+
     '<p>'+applyName(ig.desc,nm).replace(/\n\n/g,'</p><p>')+'</p></div>');
+
+  // 일주 심층
+  var ilju=analyzeIlju(d);
+  html+=sec('2','일주 '+d.dp.stem+d.dp.branch+' 심층 분석','[N의] 가장 핵심이 되는 자리',
+    '<div class="warm-card"><h3>🌟 [N의] 일주 = '+d.dp.stem+d.dp.branch+'</h3>'+
+    '<p><strong>일간 '+d.dp.stem+' ('+ig.n+', '+ig.kw+')</strong>이 본인의 본성이라면, <strong>일지 '+d.dp.branch+' ('+BRANCH_ANIMAL[d.dp.branch]+', '+B_ELEM[BRANCHES.indexOf(d.dp.branch)]+'기)</strong>는 [N의] 가장 사적인 공간 - 배우자 자리이자 [N의] 깊은 본능이 머무는 곳입니다.</p>'+
+    '<p><strong>일지 지장간</strong>: '+ilju.hiddenTxt+' - 일지 안에 숨은 십성들이 [N의] 본능적 욕구와 배우자 운에 영향을 줍니다.</p>'+
+    '<p><strong>박쌤이 풀어드리는 일주의 결</strong>: '+ilju.charactor+'</p>'+
+    '<p><strong>일지가 말하는 배우자 자리</strong>: '+ilju.spouse+'</p>'+
+    '</div>');
+
+  // 격국
+  var gk=analyzeGyeokguk(d);
+  html+=sec('3','격국(格局) 분석','월령에서 본 [N의] 사주 격(틀)',
+    '<div class="dark-card"><h3>📐 [N의] 격국 = '+gk.name+'</h3>'+
+    '<p><strong>월지 '+d.mp.branch+'</strong>의 주된 기운에서 [N의] 격(틀)이 정해집니다. [N의] 격은 <strong>'+gk.name+'</strong>입니다.</p>'+
+    '<p>'+gk.desc+'</p>'+
+    '<p><strong>이 격을 살리는 길</strong>: '+gk.howTo+'</p>'+
+    '</div>');
+
   // 오행
   var elHTML='';
   var max=Math.max(d.elem.목,d.elem.화,d.elem.토,d.elem.금,d.elem.수,1);
@@ -1427,23 +1671,89 @@ function buildSajuPane(){
     var v=d.elem[e],pct=v/max*100;
     elHTML+='<div class="el-row"><div class="el-name" style="color:'+EL_COLOR[e]+'">'+EL_EMOJI[e]+' '+e+'</div><div class="el-track"><div class="el-fill" style="background:'+EL_CSS[e]+';width:'+pct+'%">'+(v>=2?v:'')+'</div></div><div class="el-cnt">'+v+'</div></div>';
   });
-  html+=sec('2','오행 분포','[N의] 다섯 기운의 균형',
+  html+=sec('4','오행 분포 + 신강·신약','[N의] 다섯 기운의 균형',
     elHTML+'<div class="warm-card" style="margin-top:14px"><p><strong>'+d.strength+'</strong>: '+
-    (d.strength.indexOf('강')>=0?applyName('[N은] 자기 주관이 뚜렷하고 추진력이 강합니다. 식상·재성으로 기운을 내보내는 활동(표현·일·사업)이 길합니다.',nm):applyName('[N은] 신중하고 섬세합니다. 인성·비겁으로 기운을 채우는 활동(공부·휴식·동료)이 도움이 됩니다.',nm))+'</p></div>');
+    (d.strength.indexOf('강')>=0?'[N은] 자기 주관이 뚜렷하고 추진력이 강합니다. 식상·재성으로 기운을 내보내는 활동(표현·일·사업)이 길합니다.':'[N은] 신중하고 섬세합니다. 인성·비겁으로 기운을 채우는 활동(공부·휴식·동료)이 도움이 됩니다.')+'</p></div>');
+
+  // 십성 분포
+  var stars=countStars(d);
+  var totalStars=0;
+  Object.keys(stars).forEach(function(k){totalStars+=stars[k];});
+  var starHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">';
+  var starOrder=['비견','겁재','식신','상관','편재','정재','편관','정관','편인','정인'];
+  var starColors={비견:'#7a6038',겁재:'#a02018',식신:'#2d8a4e',상관:'#1e5a32',편재:'#c9a84c',정재:'#8b6914',편관:'#a02018',정관:'#1a0a3d',편인:'#3d2a73',정인:'#2c5582'};
+  starOrder.forEach(function(s){
+    var cnt=stars[s]||0;
+    if(cnt>0){
+      starHTML+='<div style="background:#faf6ed;border:1.5px solid '+starColors[s]+';border-radius:10px;padding:10px;text-align:center">'+
+        '<div style="font-size:13px;font-weight:700;color:'+starColors[s]+';margin-bottom:4px">'+s+'</div>'+
+        '<div style="font-size:18px;font-weight:700">'+cnt+'</div>'+
+        '<div style="font-size:10.5px;color:#9c8060;margin-top:3px">'+STAR_DESC[s].split('.')[0]+'</div>'+
+      '</div>';
+    }
+  });
+  starHTML+='</div>';
+  var dominantStars=Object.keys(stars).filter(function(k){return stars[k]>=2;}).sort(function(a,b){return stars[b]-stars[a];}).slice(0,3);
+  starHTML+='<div class="warm-card" style="margin-top:14px"><p><strong>📊 박쌤이 본 [N의] 십성 결</strong></p>';
+  if(dominantStars.length){
+    starHTML+='<p>[N의] 사주에 가장 많은 십성은 <strong>'+dominantStars.join(', ')+'</strong>입니다. '+
+      starGroupMessage(dominantStars)+'</p>';
+  } else {
+    starHTML+='<p>[N의] 십성이 골고루 분포된 균형형 사주입니다. 어느 한쪽으로 쏠리지 않아 다양한 분야 적응이 빠릅니다.</p>';
+  }
+  starHTML+='</div>';
+  html+=sec('5','십성 분포','천간·지지·지장간 모두 합산',starHTML);
+
+  // 합·충
+  var hapchong=analyzeHapchong(d);
+  var hcHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  hcHTML+='<div class="warm-card" style="margin-top:0"><h3>🤝 합(合) - 어울리는 기운</h3>';
+  if(hapchong.haps.length){
+    hapchong.haps.forEach(function(h){hcHTML+='<p style="font-size:13px;margin-bottom:6px">• '+h+'</p>';});
+  } else {hcHTML+='<p style="font-size:13px">특별한 합이 없습니다 - 독립적 흐름.</p>';}
+  hcHTML+='</div>';
+  hcHTML+='<div class="dark-card" style="margin-top:0"><h3>⚔️ 충(沖) - 부딪히는 기운</h3>';
+  if(hapchong.chongs.length){
+    hapchong.chongs.forEach(function(c){hcHTML+='<p style="font-size:13px;margin-bottom:6px;color:rgba(255,255,255,.9)">• '+c+'</p>';});
+  } else {hcHTML+='<p style="font-size:13px;color:rgba(255,255,255,.9)">큰 충이 없는 안정형 사주입니다.</p>';}
+  hcHTML+='</div></div>';
+  html+=sec('6','합·충(合沖) 분석','[N의] 사주 안에서 만나는 기운들',
+    hcHTML+'<div class="warm-card" style="margin-top:12px"><p>'+hapchong.summary+'</p></div>');
+
   // 신살
   var ssalHTML='<div class="ssal-grid">';
-  var ssalArr=[
-    {k:'도화살',v:d.ssal.dohwa,em:'🌸',desc:'매력·인기·예술 재능'},
-    {k:'역마살',v:d.ssal.yeokma,em:'🐎',desc:'이동·변화·해외 활동'},
-    {k:'화개살',v:d.ssal.hwagae,em:'🪷',desc:'예술·종교·정신성'},
-    {k:'양인살',v:d.ssal.yangin,em:'⚔️',desc:'추진력·결단·강한 의지'}
-  ];
-  ssalArr.forEach(function(s){
+  [
+    {k:'도화살',v:d.ssal.dohwa,em:'🌸',desc:'매력·인기·예술'},
+    {k:'역마살',v:d.ssal.yeokma,em:'🐎',desc:'이동·해외·변화'},
+    {k:'화개살',v:d.ssal.hwagae,em:'🪷',desc:'예술·종교·정신'},
+    {k:'양인살',v:d.ssal.yangin,em:'⚔️',desc:'추진력·결단'}
+  ].forEach(function(s){
     var has=s.v.where.length>0;
     ssalHTML+='<div class="ssal-card '+(has?'has':'')+'"><div class="ssal-name">'+s.em+' '+s.k+'</div><div class="ssal-val">'+(has?s.v.where.join(','):'-')+'</div><div class="ssal-where">'+s.desc+'</div></div>';
   });
   ssalHTML+='</div>';
-  html+=sec('3','신살(神煞)','[N의] 운명에 작용하는 별',ssalHTML);
+  html+=sec('7','신살(神煞)','[N의] 운명에 작용하는 별',ssalHTML);
+
+  // 가족 자리 분석
+  var fam=analyzeFamilyPositions(d);
+  html+=sec('8','가족·인생 단계 분석','네 기둥이 보여주는 [N의] 가족과 인생 단계',
+    '<div style="display:grid;gap:10px">'+
+    '<div class="warm-card" style="margin:0"><h3>👨‍👩 년주 '+d.yp.stem+d.yp.branch+' - 조상·부친·15세 이전</h3><p>'+fam.year+'</p></div>'+
+    '<div class="warm-card" style="margin:0"><h3>🏠 월주 '+d.mp.stem+d.mp.branch+' - 부모·모친·형제·16~30대</h3><p>'+fam.month+'</p></div>'+
+    '<div class="warm-card" style="margin:0"><h3>💑 일주 '+d.dp.stem+d.dp.branch+' - 본인·배우자·30~45세</h3><p>'+fam.day+'</p></div>'+
+    (d.hp?'<div class="warm-card" style="margin:0"><h3>👶 시주 '+d.hp.stem+d.hp.branch+' - 자녀·45세 이후·노년</h3><p>'+fam.hour+'</p></div>':'<div class="warm-card" style="margin:0"><h3>👶 시주 - 시간을 모르셔서 풀이 불가</h3><p>태어난 시간을 아시게 되면 자녀운과 노년운의 자세한 풀이가 가능합니다.</p></div>')+
+    '</div>');
+
+  // 직업 적성
+  var jobs=analyzeJobs(d,ig);
+  html+=sec('9','[N의] 직업 적성','사주 + 오행 + 십성이 가리키는 길',
+    '<div class="dark-card"><h3>💼 박쌤이 본 [N에게] 가장 잘 맞는 분야</h3>'+
+    '<p><strong>1순위 (일간 기반)</strong>: '+ig.job+'. [N의] 본성이 가장 자연스럽게 발휘됩니다.</p>'+
+    '<p><strong>2순위 (강한 오행 기반)</strong>: '+jobs.byElement+'</p>'+
+    '<p><strong>3순위 (강한 십성 기반)</strong>: '+jobs.byStar+'</p>'+
+    '<p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(240,208,128,.3)"><strong>박쌤의 한마디</strong>: '+jobs.advice+'</p>'+
+    '</div>');
+
   // 대운
   var dunHTML='<div class="timeline">';
   d.daeun.list.forEach(function(du,i){
@@ -1451,12 +1761,11 @@ function buildSajuPane(){
     var ts=getTenStar(d.dp.stem,du.stem);
     var el=S_ELEM[STEMS.indexOf(du.stem)];
     dunHTML+='<div class="tl-item"><div class="tl-left"><div class="tl-dot '+(cur?'active':'')+'"></div>'+(i<d.daeun.list.length-1?'<div class="tl-bar '+(cur?'active':'')+'"></div>':'')+'</div>'+
-      '<div class="tl-body '+(cur?'active':'')+'"><div class="tl-age">'+du.age+'세 ~ '+du.end+'세'+(cur?' · 현재':'')+'</div><div class="tl-ganji">'+du.stem+du.branch+'</div><div class="tl-elem">'+EL_EMOJI[el]+' '+el+' · '+ts+'</div><div class="tl-desc">'+STAR_DESC[ts]+'. '+
-      (cur?applyName('지금 [N은] 이 흐름 위에 계십니다. ',nm):'')+
-      '</div></div></div>';
+      '<div class="tl-body '+(cur?'active':'')+'"><div class="tl-age">'+du.age+'세 ~ '+du.end+'세'+(cur?' · 현재':'')+'</div><div class="tl-ganji">'+du.stem+du.branch+'</div><div class="tl-elem">'+EL_EMOJI[el]+' '+el+' · '+ts+'</div><div class="tl-desc">'+STAR_DESC[ts]+'. '+(cur?'지금 [N은] 이 흐름 위에 계십니다.':'')+'</div></div></div>';
   });
   dunHTML+='</div>';
-  html+=sec('4','대운 흐름','10년 단위 인생 큰 그림 ('+d.daeun.startAge+'세부터 '+(d.daeun.fwd?'순행':'역행')+')',dunHTML);
+  html+=sec('10','대운 흐름','10년 단위 인생 큰 그림 ('+d.daeun.startAge+'세부터 '+(d.daeun.fwd?'순행':'역행')+')',dunHTML);
+
   // 세운
   var yrHTML='<div class="year-grid">';
   for(var i=-2;i<=7;i++){
@@ -1464,8 +1773,209 @@ function buildSajuPane(){
     yrHTML+='<div class="year-card '+(i===0?'cur':'')+'"><div class="yc-year">'+yy+'년 ('+(yy-d.solar.y+1)+'세)</div><div class="yc-ganji" style="'+(i!==0?'color:'+EL_COLOR[el]:'')+'">'+yf.stem+yf.branch+'</div><div class="yc-star">'+EL_EMOJI[el]+' '+ts+'</div></div>';
   }
   yrHTML+='</div>';
-  html+=sec('5','세운(年運)','연도별 흐름 (현재 ~ 7년 후)',yrHTML);
+  html+=sec('11','세운(年運)','연도별 흐름 (현재 ~ 7년 후)',yrHTML);
   return html;
+}
+
+// 사주 헬퍼들
+function analyzeIlju(d){
+  var hidden=HIDDEN[d.dp.branch]||[];
+  var hiddenTxt=hidden.map(function(h){
+    var ts=(h===d.dp.stem)?'(일간동)':getTenStar(d.dp.stem,h);
+    return h+'('+ts+')';
+  }).join(', ');
+  var be=B_ELEM[BRANCHES.indexOf(d.dp.branch)];
+  var de=S_ELEM[STEMS.indexOf(d.dp.stem)];
+  // 일주 본성 풀이
+  var character='[N의] 일주 '+d.dp.stem+d.dp.branch+'는 천간 '+de+'기에 지지 '+be+'기('+BRANCH_ANIMAL[d.dp.branch]+')가 결합한 자리입니다. ';
+  if(EL_GEN[be]===de)character+='지지가 일간을 도와주는 형태라 [N은] 본질적으로 자기 자신을 든든히 받쳐주는 힘이 강한 사주입니다.';
+  else if(de===be)character+='일간과 일지가 같은 오행이라 [N은] 자기 본성과 본능이 일치하는 안정형입니다.';
+  else if(EL_CTR[be]===de)character+='지지가 일간을 극하는 형태라 [N은] 내면적 긴장이 있는 분이지만, 그 긴장이 추진력으로 작용합니다.';
+  else if(EL_GEN[de]===be)character+='일간이 지지를 생하는 형태라 [N은] 자기 에너지를 외부로 잘 내보내는 활동형입니다.';
+  else character+='[N의] 천간과 지지가 서로 다른 결을 가져, 다층적이고 입체적인 인격을 만듭니다.';
+  // 배우자 자리
+  var spouseGenders={
+    자:'지혜롭고 깊이 있는 배우자',축:'성실하고 인내심 깊은 배우자',
+    인:'활동적이고 추진력 있는 배우자',묘:'섬세하고 감성적인 배우자',
+    진:'든든하고 포용력 있는 배우자',사:'열정적이고 표현 풍부한 배우자',
+    오:'밝고 사교적인 배우자',미:'온화하고 헌신적인 배우자',
+    신:'예리하고 결단력 있는 배우자',유:'세련되고 정확한 배우자',
+    술:'우직하고 의리 있는 배우자',해:'지혜롭고 자유로운 배우자'
+  };
+  var spouse=spouseGenders[d.dp.branch]+'와 인연이 강합니다. ';
+  if(d.dp.branch==='묘'||d.dp.branch==='유'||d.dp.branch==='오'||d.dp.branch==='자')spouse+='도화 자리라 매력적인 배우자를 만날 운입니다.';
+  else if(d.dp.branch==='인'||d.dp.branch==='신'||d.dp.branch==='사'||d.dp.branch==='해')spouse+='역마 자리라 배우자와 함께 이동·해외 인연이 있을 수 있습니다.';
+  else spouse+='안정적이고 깊은 인연을 만나는 자리입니다.';
+  return {hiddenTxt:hiddenTxt,charactor:character,spouse:spouse};
+}
+
+function analyzeGyeokguk(d){
+  // 월지 본기로 격국 결정 (간략화)
+  var mbHidden=HIDDEN[d.mp.branch]||[];
+  var mainStem=mbHidden[0]; // 본기
+  var gk=getTenStar(d.dp.stem,mainStem);
+  var gkNames={
+    비견:'비견격(比肩格)',겁재:'겁재격(劫財格)',
+    식신:'식신격(食神格)',상관:'상관격(傷官格)',
+    편재:'편재격(偏財格)',정재:'정재격(正財格)',
+    편관:'편관격(偏官格/七殺格)',정관:'정관격(正官格)',
+    편인:'편인격(偏印格)',정인:'정인격(正印格)'
+  };
+  var gkDesc={
+    비견:'[N은] 비견격으로 동료와 함께 일하는 결, 자기 정체성이 뚜렷한 사주입니다. 협력과 단결을 통해 성취를 이룹니다.',
+    겁재:'[N은] 겁재격으로 경쟁과 추진의 결, 도전적 환경에서 빛납니다. 다만 재물 새는 자리 주의.',
+    식신:'[N은] 식신격으로 표현과 생산의 결, 부드러운 창의력과 돌봄의 능력이 뛰어납니다. 먹복이 있고 자녀운이 좋습니다.',
+    상관:'[N은] 상관격으로 혁신과 자유의 결, 기존 틀을 깨는 창의력이 뛰어납니다. 표현·예술 분야 강점.',
+    편재:'[N은] 편재격으로 활동과 거래의 결, 사업 감각이 뛰어나고 큰 재물 운이 있습니다.',
+    정재:'[N은] 정재격으로 안정과 성실의 결, 차곡차곡 쌓는 재물 운이 강합니다. 직장과 안정 자산 길.',
+    편관:'[N은] 편관격(칠살격)으로 강한 권위와 추진의 결, 위기 돌파력이 뛰어납니다. 군경·법조·의료 분야 강점.',
+    정관:'[N은] 정관격으로 명예와 질서의 결, 공직·대기업·관리직에 가장 잘 어울리는 사주입니다.',
+    편인:'[N은] 편인격으로 직관과 연구의 결, 종교·철학·특수 전문 분야에 강점이 있습니다.',
+    정인:'[N은] 정인격으로 학문과 배움의 결, 교육·연구·문서·자격 운이 강합니다.'
+  };
+  var gkHow={
+    비견:'동료·동업·자기 색깔 분명히 하는 일',겁재:'경쟁이 있는 분야, 본인 주도 사업',
+    식신:'표현·돌봄·요리·창작 분야',상관:'예술·기획·창의·표현 분야',
+    편재:'영업·활동·거래·해외 무역',정재:'안정 직장·재무·회계·실속 사업',
+    편관:'권위 있는 자리·군경·의료·위기 관리',정관:'공직·대기업·관리·교육·법무',
+    편인:'연구·종교·심리·특수 전문직',정인:'교육·학문·문서·연구·자격증 분야'
+  };
+  return {name:gkNames[gk]||'균형형',desc:gkDesc[gk]||'균형 잡힌 사주입니다.',howTo:gkHow[gk]||'본인 결에 맞는 분야'};
+}
+
+function countStars(d){
+  var stars={};
+  var pillars=[d.yp,d.mp,d.dp,d.hp];
+  pillars.forEach(function(p,idx){
+    if(!p)return;
+    if(p!==d.dp){
+      var t=getTenStar(d.dp.stem,p.stem);
+      stars[t]=(stars[t]||0)+1;
+    }
+    // 지지 본기 (지장간 첫번째)
+    var hidden=HIDDEN[p.branch]||[];
+    hidden.forEach(function(h,i){
+      if(p===d.dp&&h===d.dp.stem)return; // 일간과 같은 건 제외
+      var t=getTenStar(d.dp.stem,h);
+      // 본기는 1.0, 중기는 0.5, 여기는 0.3 가중. 합산 후 반올림
+      var weight=(i===0?1:(i===1?0.5:0.3));
+      stars[t]=(stars[t]||0)+weight;
+    });
+  });
+  // 반올림
+  Object.keys(stars).forEach(function(k){stars[k]=Math.round(stars[k]*10)/10;});
+  return stars;
+}
+
+function starGroupMessage(dominants){
+  var hasA=function(arr){return dominants.some(function(d){return arr.indexOf(d)>=0;});};
+  var msgs=[];
+  if(hasA(['비견','겁재']))msgs.push('비겁 강세 - 자기 주관·독립성·동료 운이 강함. 본인 주도로 풀어가는 결.');
+  if(hasA(['식신','상관']))msgs.push('식상 강세 - 표현·창의·자녀·먹복이 풍성. 자기 색깔을 드러내는 일이 길.');
+  if(hasA(['편재','정재']))msgs.push('재성 강세 - 재물·사업 감각·이성 운이 강함. 활동을 통한 수익이 크게 들어오는 결.');
+  if(hasA(['편관','정관']))msgs.push('관성 강세 - 명예·직장·사회적 자리 운이 강함. 조직과 시스템 안에서 빛나는 결.');
+  if(hasA(['편인','정인']))msgs.push('인성 강세 - 학문·문서·자격·연구 운이 강함. 깊이 파고드는 분야에서 결실.');
+  return msgs.join(' ');
+}
+
+function analyzeHapchong(d){
+  var haps=[],chongs=[];
+  // 천간 합: 갑기, 을경, 병신, 정임, 무계
+  var stemHaps={'갑기':'토합','을경':'금합','병신':'수합','정임':'목합','무계':'화합'};
+  var stems=[d.yp,d.mp,d.dp,d.hp].filter(Boolean).map(function(p){return p.stem;});
+  for(var i=0;i<stems.length;i++){
+    for(var j=i+1;j<stems.length;j++){
+      var pair=stems[i]+stems[j];
+      var rev=stems[j]+stems[i];
+      if(stemHaps[pair])haps.push(stems[i]+'+'+stems[j]+' '+stemHaps[pair]+' (천간합)');
+      else if(stemHaps[rev])haps.push(stems[j]+'+'+stems[i]+' '+stemHaps[rev]+' (천간합)');
+    }
+  }
+  // 지지 6충: 자오, 축미, 인신, 묘유, 진술, 사해
+  var chong6={'자오':'수화충','축미':'토충','인신':'목금충','묘유':'목금충','진술':'토충','사해':'화수충'};
+  var branches=[d.yp,d.mp,d.dp,d.hp].filter(Boolean).map(function(p){return p.branch;});
+  for(var i=0;i<branches.length;i++){
+    for(var j=i+1;j<branches.length;j++){
+      var pair=branches[i]+branches[j],rev=branches[j]+branches[i];
+      if(chong6[pair])chongs.push(branches[i]+'-'+branches[j]+' '+chong6[pair]);
+      else if(chong6[rev])chongs.push(branches[j]+'-'+branches[i]+' '+chong6[rev]);
+    }
+  }
+  // 지지 6합
+  var hap6={'자축':'토합','인해':'목합','묘술':'화합','진유':'금합','사신':'수합','오미':'화합'};
+  for(var i=0;i<branches.length;i++){
+    for(var j=i+1;j<branches.length;j++){
+      var pair=branches[i]+branches[j],rev=branches[j]+branches[i];
+      if(hap6[pair])haps.push(branches[i]+'+'+branches[j]+' '+hap6[pair]+' (지지육합)');
+      else if(hap6[rev])haps.push(branches[j]+'+'+branches[i]+' '+hap6[rev]+' (지지육합)');
+    }
+  }
+  var summary='';
+  if(haps.length>chongs.length)summary='합이 많은 사주입니다. 인간관계와 협력이 잘 풀리는 결로, [N은] 사람과 함께 일하는 자리에서 빛납니다.';
+  else if(chongs.length>haps.length)summary='충이 많은 사주입니다. [N은] 변화와 도전이 많은 인생인 만큼, 단단해지는 결을 타고나셨습니다.';
+  else summary='합과 충이 균형 잡힌 사주로, [N은] 안정과 변화를 모두 다룰 줄 아는 사람입니다.';
+  return {haps:haps,chongs:chongs,summary:summary};
+}
+
+function analyzeFamilyPositions(d){
+  var yts=getTenStar(d.dp.stem,d.yp.stem);
+  var mts=getTenStar(d.dp.stem,d.mp.stem);
+  var hts=d.hp?getTenStar(d.dp.stem,d.hp.stem):null;
+  // 년주
+  var year='조상과 부친의 자리입니다. ';
+  if(yts==='정인'||yts==='편인')year+='[N의] 부친이 학문·교양·지혜를 물려준 분이거나, 좋은 가르침을 받은 환경에서 자라셨을 가능성이 큽니다.';
+  else if(yts==='정관'||yts==='편관')year+='[N의] 부친이 사회적 지위가 있거나 엄격한 분, 또는 [N이] 명예·질서를 중시하는 환경에서 자라셨을 수 있습니다.';
+  else if(yts==='정재'||yts==='편재')year+='[N의] 조상·부친이 재물·사업과 관련 있거나, 경제적 가치를 중시하는 환경에서 자라셨을 수 있습니다.';
+  else if(yts==='식신'||yts==='상관')year+='[N의] 부친이 자유롭고 표현이 풍부한 분, 또는 따뜻하고 즐거운 가정 분위기였을 수 있습니다.';
+  else year+='[N과] 부친이 비슷한 결로, 평등하고 친구 같은 관계였을 수 있습니다.';
+  // 월주
+  var month='부모(특히 모친)와 형제, 그리고 16~30대 사회 진입기를 보여주는 자리입니다. ';
+  if(mts==='정인'||mts==='편인')month+='[N의] 모친이 헌신적으로 키워주신 분, 학문과 정성으로 길러진 환경입니다.';
+  else if(mts==='정관'||mts==='편관')month+='[N의] 청년기에 사회적 압력과 책임감이 컸지만, 그 시기를 통과하며 단단해지셨습니다.';
+  else if(mts==='정재'||mts==='편재')month+='[N의] 청년기에 경제 활동과 사회 진입이 활발했고, 일찍 사회를 경험하셨을 수 있습니다.';
+  else if(mts==='식신'||mts==='상관')month+='[N의] 청년기가 자기 표현과 창의성으로 가득했고, 본인 색깔을 일찍 찾으셨을 수 있습니다.';
+  else month+='[N의] 청년기에 동료·친구·경쟁이 큰 비중이었고, 그 안에서 자기를 찾으셨습니다.';
+  // 일주
+  var day='[N] 본인과 배우자, 30~45세 인생 정점의 자리입니다. ';
+  day+='일간 '+d.dp.stem+'이 [N의] 본질이고, 일지 '+d.dp.branch+'은 [N의] 배우자와 가장 깊은 본능을 담습니다. ';
+  if(d.dp.branch==='묘'||d.dp.branch==='유'||d.dp.branch==='오'||d.dp.branch==='자')day+='도화 자리라 매력적이고 인기 있는 배우자, 또는 본인의 매력이 빛나는 시기입니다.';
+  else if(d.dp.branch==='인'||d.dp.branch==='신'||d.dp.branch==='사'||d.dp.branch==='해')day+='역마 자리라 배우자와 함께 이동·해외 인연이 있을 수 있습니다.';
+  else day+='안정적이고 깊은 배우자 인연을 만나는 자리입니다.';
+  // 시주
+  var hour=null;
+  if(d.hp){
+    hour='자녀와 45세 이후, 노년의 자리입니다. ';
+    if(hts==='식신'||hts==='상관')hour+='자녀가 표현 풍부하고 창의적이며, [N의] 노년이 활기차고 자녀 덕이 큽니다.';
+    else if(hts==='정인'||hts==='편인')hour+='자녀가 학문·교양을 즐기는 분이고, [N의] 노년은 책과 사색의 시간이 될 수 있습니다.';
+    else if(hts==='정관'||hts==='편관')hour+='자녀가 사회적 책임감 있는 분이고, [N의] 노년은 안정적이지만 책임이 따르는 시기.';
+    else if(hts==='정재'||hts==='편재')hour+='자녀가 경제 활동에 강하고, [N의] 노년에 재물 운이 함께합니다.';
+    else hour+='자녀와 평등하고 친구 같은 관계, [N의] 노년이 자유롭고 동료들과 함께하는 시기.';
+  }
+  return {year:year,month:month,day:day,hour:hour};
+}
+
+function analyzeJobs(d,ig){
+  var sortedEl=Object.keys(d.elem).sort(function(a,b){return d.elem[b]-d.elem[a];});
+  var strongEl=sortedEl[0];
+  var elJobs={
+    목:'교육·출판·환경·의료·법조·디자인·건축·임업',
+    화:'방송·연예·마케팅·요리·미용·전기전자·IT·강의',
+    토:'부동산·건설·농업·금융·식품·중개·행정',
+    금:'금융·법조·군경·기계·제조·정밀공학·스포츠',
+    수:'무역·여행·물류·연구·IT·해운·외교·심리'
+  };
+  var stars=countStars(d);
+  var sortedStars=Object.keys(stars).sort(function(a,b){return stars[b]-stars[a];});
+  var topStar=sortedStars[0];
+  var starJobs={
+    비견:'동업·프리랜서·자기 분야 전문가',겁재:'경쟁적 분야·스포츠·세일즈·창업',
+    식신:'요리·돌봄·교육·창작·서비스',상관:'예술·기획·창의 산업·미디어',
+    편재:'영업·사업·해외 무역·부동산·중개',정재:'안정 직장·재무·회계·실속 사업',
+    편관:'권위 분야·군경·의료·위기 관리·법조',정관:'공직·대기업·관리·교육·행정',
+    편인:'연구·종교·심리·특수 전문·예술',정인:'교육·학문·연구·문서·자격 분야'
+  };
+  var advice='[N의] 사주가 가장 빛나는 자리는 일간 본성('+ig.kw+')과 강한 오행('+strongEl+'기), 그리고 강한 십성('+topStar+')이 만나는 영역입니다. 위 세 분야 중 [N의] 마음이 가장 끌리는 곳, 그게 박쌤이 추천드리는 길입니다.';
+  return {byElement:elJobs[strongEl]+'. 강한 '+strongEl+'기('+EL_EMOJI[strongEl]+')의 결을 살리는 분야.',byStar:starJobs[topStar]+'. 강한 '+topStar+' 십성을 살리는 분야.',advice:advice};
 }
 
 // ───── 2026 월별 (핵심!) ─────
@@ -1673,49 +2183,70 @@ function buildQAPane(){
 }
 
 // ════════════════════════════════════════════════════════
-// 타로 인터랙션
+// 타로 인터랙션 (이벤트 위임 + 전역 상태 관리)
 // ════════════════════════════════════════════════════════
-var TAROT_DECK=null,TAROT_MODE=1,TAROT_PICKS=[];
+var TAROT_DECK=null,TAROT_MODE=1,TAROT_PICKS=[],TAROT_SPREAD_OPEN=false,TAROT_MSGS=[];
+
 function shuffleDeck(){
   TAROT_DECK=TAROT.slice();
   for(var i=TAROT_DECK.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=TAROT_DECK[i];TAROT_DECK[i]=TAROT_DECK[j];TAROT_DECK[j]=t;}
-  TAROT_PICKS=[];
+  TAROT_PICKS=[];TAROT_SPREAD_OPEN=false;TAROT_MSGS=[];
 }
-function renderTarotBoard(){
+
+function setupTarotBoard(){
   shuffleDeck();
-  var html='';
-  // 27장(또는 21장) 카드 뒷면 펼치기
-  var count=21;
-  for(var i=0;i<count;i++){
+  var board=document.getElementById('tarot-board');
+  var result=document.getElementById('tarot-result');
+  if(!board||!result)return;
+  var modeLabel=TAROT_MODE===1?'한 장 뽑기':(TAROT_MODE===3?'3장 (과거·현재·미래)':'5장 (V자 스프레드)');
+  var html='<div id="tarot-status" style="width:100%;text-align:center;color:#f5d97a;font-size:13.5px;margin-bottom:14px;letter-spacing:1px;padding:10px;background:rgba(0,0,0,.25);border-radius:10px;border:1px solid rgba(240,208,128,.25)">';
+  html+='<strong>✦ '+modeLabel+' ✦</strong><br>';
+  html+='<span style="font-size:12px;color:rgba(255,255,255,.85)"><span id="tarot-progress">0</span> / '+TAROT_MODE+'장 뽑음</span><br>';
+  html+='<span style="font-size:11px;opacity:.7;color:rgba(255,255,255,.6)">아래 카드 21장 중에서 마음 가는 자리를 '+TAROT_MODE+'번 클릭하세요</span>';
+  html+='</div>';
+  for(var i=0;i<21;i++){
     html+='<div class="card-back" data-idx="'+i+'"></div>';
   }
-  document.getElementById('tarot-board').innerHTML=html;
-  document.getElementById('tarot-result').innerHTML='';
-  document.querySelectorAll('#tarot-board .card-back').forEach(function(el){
-    el.addEventListener('click',function(){
-      if(TAROT_PICKS.length>=TAROT_MODE)return;
-      var idx=parseInt(this.getAttribute('data-idx'),10);
-      this.classList.add('picked');
-      // 이미 뽑은 인덱스는 제외
-      var available=TAROT_DECK.filter(function(c,i){return TAROT_PICKS.indexOf(i)<0;});
-      var card=available[Math.floor(Math.random()*available.length)];
-      var realIdx=TAROT_DECK.indexOf(card);
-      TAROT_PICKS.push(realIdx);
-      var rev=Math.random()<0.4;
-      renderTarotResult(card,rev);
-      if(TAROT_PICKS.length>=TAROT_MODE)renderTarotInterp();
-    });
-  });
+  board.innerHTML=html;
+  result.innerHTML='';
 }
+
+function pickTarotCard(cardEl){
+  if(!cardEl||cardEl.classList.contains('picked'))return;
+  if(TAROT_PICKS.length>=TAROT_MODE)return;
+  cardEl.classList.add('picked');
+  var available=[];
+  for(var i=0;i<TAROT_DECK.length;i++){
+    if(TAROT_PICKS.indexOf(i)<0)available.push(i);
+  }
+  if(!available.length)return;
+  var pickedRealIdx=available[Math.floor(Math.random()*available.length)];
+  var pickedCard=TAROT_DECK[pickedRealIdx];
+  TAROT_PICKS.push(pickedRealIdx);
+  var rev=Math.random()<0.4;
+  renderTarotResult(pickedCard,rev);
+  var prog=document.getElementById('tarot-progress');
+  if(prog)prog.textContent=TAROT_PICKS.length;
+  if(TAROT_PICKS.length>=TAROT_MODE){
+    renderTarotInterp();
+    var status=document.getElementById('tarot-status');
+    if(status){
+      status.innerHTML='<strong style="color:#f5d97a">✨ '+TAROT_MODE+'장 풀이 완료 ✨</strong><br><span style="font-size:11.5px;opacity:.8;color:rgba(255,255,255,.7)">아래에서 박쌤의 풀이를 확인하세요. 다시 뽑으려면 [카드 다시 섞기] 버튼을 누르세요.</span>';
+    }
+  }
+}
+
 function renderTarotResult(card,rev){
   var box=document.getElementById('tarot-result');
-  if(!box._spread){
+  if(!TAROT_SPREAD_OPEN){
     box.innerHTML='<div class="tarot-spread t'+TAROT_MODE+'" id="t-spread"></div>';
-    box._spread=true;
+    TAROT_SPREAD_OPEN=true;
+    TAROT_MSGS=[];
   }
-  var positions=TAROT_MODE===3?['과거','현재','미래']:(TAROT_MODE===5?['현재','장애','조언','과거','미래']:['현재']);
+  var positions=TAROT_MODE===3?['과거','현재','미래']:(TAROT_MODE===5?['현재','장애','조언','과거','미래']:['지금 이 순간']);
   var pos=positions[TAROT_PICKS.length-1]||'';
   var spread=document.getElementById('t-spread');
+  if(!spread)return;
   var dirCls=rev?'rev':'up';
   var dirLbl=rev?'역방향':'정방향';
   var meaning=applyName(rev?card.rev:card.up,$data.name);
@@ -1723,41 +2254,60 @@ function renderTarotResult(card,rev){
   var sym=rev?'<span style="display:inline-block;transform:rotate(180deg)">'+card.sym+'</span>':card.sym;
   var html='<div class="tcard"><div class="tc-pos">'+pos+'</div><div class="tc-sym">'+sym+'</div><div class="tc-name">'+card.n+'</div><div class="tc-en">'+card.e+'</div><div class="tc-dir '+dirCls+'">'+dirLbl+'</div><div class="tc-meaning">'+meaning+'</div></div>';
   spread.innerHTML+=html;
-  if(!box._msgs)box._msgs=[];
-  box._msgs.push({pos:pos,card:card,rev:rev,msg:msg,meaning:meaning});
+  TAROT_MSGS.push({pos:pos,card:card,rev:rev,msg:msg,meaning:meaning});
 }
+
 function renderTarotInterp(){
   var box=document.getElementById('tarot-result');
-  var msgs=box._msgs||[];
-  var q=document.getElementById('tarot-q').value.trim();
+  if(!box)return;
+  var qEl=document.getElementById('tarot-q');
+  var q=qEl?qEl.value.trim():'';
   var nm=$data.name;
   var disp=nm?(nm+'님'):'당신';
   var html='<div class="tarot-interp" style="margin-top:14px"><h4>🌟 '+disp+'께 드리는 박쌤의 타로 풀이</h4>';
   if(q)html+='<p><strong>질문</strong>: "'+q+'"</p>';
-  msgs.forEach(function(m){
+  TAROT_MSGS.forEach(function(m){
     html+='<p><strong>['+m.pos+'] '+m.card.n+' '+(m.rev?'(역방향)':'(정방향)')+'</strong> - '+applyName(m.msg,nm)+'</p>';
   });
   if(TAROT_MODE===3){
-    html+='<p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(240,208,128,.3)">'+applyName('박쌤이 풀어드리자면, 세 카드가 함께 보내는 메시지는 이렇습니다. 과거가 [N에게] 남긴 자국이 현재 [N의] 자리를 만들었고, 그 자리에서 [N이] 어떻게 움직이느냐가 미래를 결정합니다. 카드는 정답이 아니라 거울입니다.',nm)+'</p>';
+    html+='<p style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(240,208,128,.3)">'+applyName('박쌤이 풀어드리자면, 세 카드가 함께 보내는 메시지는 이렇습니다. 과거가 [N에게] 남긴 자국이 현재 [N의] 자리를 만들었고, 그 자리에서 [N이] 어떻게 움직이느냐가 미래를 결정합니다. 카드는 정답이 아니라 거울입니다.',nm)+'</p>';
   }else if(TAROT_MODE===5){
-    html+='<p style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(240,208,128,.3)">'+applyName('박쌤이 풀어드리자면, 다섯 카드가 만드는 V자는 [N의] 현재 위치(중앙)와, 그 양옆의 장애와 조언, 그리고 과거에서 미래로 흐르는 시간의 흐름을 함께 보여줍니다. 카드의 메시지를 하루 한 장씩 마음에 담아두세요.',nm)+'</p>';
+    html+='<p style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(240,208,128,.3)">'+applyName('박쌤이 풀어드리자면, 다섯 카드가 만드는 V자는 [N의] 현재 위치(중앙)와, 그 양옆의 장애·조언, 그리고 과거에서 미래로 흐르는 시간의 흐름을 함께 보여줍니다. 카드의 메시지를 하루 한 장씩 마음에 담아두세요.',nm)+'</p>';
   }else{
-    html+='<p style="margin-top:10px">'+applyName('박쌤이 풀어드리자면, 한 장의 카드는 지금 [N에게] 가장 필요한 한마디입니다. 오늘 하루 이 메시지를 마음에 새기세요.',nm)+'</p>';
+    html+='<p style="margin-top:12px">'+applyName('박쌤이 풀어드리자면, 한 장의 카드는 지금 [N에게] 가장 필요한 한마디입니다. 오늘 하루 이 메시지를 마음에 새기세요.',nm)+'</p>';
   }
   html+='</div>';
   box.innerHTML+=html;
 }
+
 function initTarot(){
+  // 모드 전환 버튼
   document.querySelectorAll('.tmode-btn').forEach(function(b){
     b.addEventListener('click',function(){
       document.querySelectorAll('.tmode-btn').forEach(function(x){x.classList.remove('active');});
       this.classList.add('active');
       TAROT_MODE=parseInt(this.getAttribute('data-mode'),10);
-      renderTarotBoard();
+      setupTarotBoard();
     });
   });
-  document.getElementById('reshuffle-btn').addEventListener('click',renderTarotBoard);
-  renderTarotBoard();
+  // 다시 섞기 버튼
+  var reshuffleBtn=document.getElementById('reshuffle-btn');
+  if(reshuffleBtn)reshuffleBtn.addEventListener('click',setupTarotBoard);
+  // 이벤트 위임 - tarot-board에 한 번만 등록
+  var board=document.getElementById('tarot-board');
+  if(board){
+    board.addEventListener('click',function(e){
+      var target=e.target;
+      while(target&&target!==board){
+        if(target.classList&&target.classList.contains('card-back')){
+          pickTarotCard(target);
+          return;
+        }
+        target=target.parentNode;
+      }
+    });
+  }
+  setupTarotBoard();
 }
 
 // ════════════════════════════════════════════════════════
